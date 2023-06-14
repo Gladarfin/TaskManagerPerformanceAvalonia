@@ -1,46 +1,72 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Management;
-using Microsoft.CodeAnalysis.Diagnostics;
+using Avalonia.Threading;
+using AvaloniaTaskManagerPerformance.App.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase
+    public partial class MainWindowViewModel : ObservableObject
     {
-        public List<string> ProcessorInfo { get; set; }
+        [ObservableProperty] private string _timer = "00:00:00:00";
+        [ObservableProperty] private int _processes;
+        [ObservableProperty] private int _threads;
+        [ObservableProperty] private int _handles;
+        [ObservableProperty] private string _cpuCounter;
+
+        private readonly PerformanceCounter _cpuLoad = new("Processor Information", "% Processor Utility", "_Total");
+        private readonly PerformanceCounter _threadsCount = new("System", "Threads");
+        private readonly PerformanceCounter _handlesCount = new("Process", "Handle Count", "_Total");
+
+        public static ProcessorInfo Info { get; set; }
+        
 
         public MainWindowViewModel()
         {
-            ProcessorInfo = GetProccessorInfo();
+            Info = GetProccessorInfo();
+            
+            var timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            //все обновляемые значения в окне
+            timer.Tick += (sender, e) =>
+            {
+                Timer = TimeSpan.FromMilliseconds(Environment.TickCount & int.MaxValue).ToString(@"dd\:hh\:mm\:ss");
+                Processes = Process.GetProcesses().Length;
+                
+                Threads =(int)_threadsCount.NextValue();
+                Handles = (int)_handlesCount.NextValue();
+                CpuCounter = $"{((int)_cpuLoad.NextValue()).ToString()}%";
+
+            };
+            
+            timer.Start();
+            
         }
 
-        private static List<string> GetProccessorInfo()
+        private static ProcessorInfo GetProccessorInfo()
         {
-            var result = new List<string>();
+            var result = new ProcessorInfo();
             var mgt = new ManagementClass("Win32_Processor");
-            var procs= mgt.GetInstances();
+            var procs = mgt.GetInstances();
             foreach (var item in procs)
             {
-                var l2Cache = (uint) item.Properties["L2CacheSize"].Value / 1024.0;
-                var l3Cache = (uint)item.Properties["L3CacheSize"].Value / 1024.0;
-                var speed = (uint) item.Properties["MaxClockSpeed"].Value / 1000.0;
-                var ticks = TimeSpan.FromMilliseconds(Environment.TickCount & int.MaxValue);
-                
-                var virtualization = (bool)item.Properties["VirtualizationFirmwareEnabled"].Value
+                result.Name = item.Properties["Name"].Value.ToString();
+                result.ThreadCount = (uint)item.Properties["ThreadCount"].Value;
+                result.NumberOfCores = (uint)item.Properties["NumberOfCores"].Value;
+                result.NumberOfLogicalProcessors = (uint)item.Properties["NumberOfLogicalProcessors"].Value;
+                result.L2Cache = (uint)item.Properties["L2CacheSize"].Value / 1024.0;
+                result.L3Cache = (uint)item.Properties["L3CacheSize"].Value / 1024.0;
+                result.MaxClockSpeed = (uint)item.Properties["MaxClockSpeed"].Value / 1000.0;
+                result.Virtualization = (bool)item.Properties["VirtualizationFirmwareEnabled"].Value
                     ? "Enabled"
                     : "Disabled";
-                result.Add(item.Properties["Name"].Value.ToString());
-                result.Add(item.Properties["ThreadCount"].Value.ToString());
-                result.Add(item.Properties["NumberOfCores"].Value.ToString());
-                result.Add(l2Cache.ToString("0.0 MB"));
-                result.Add(l3Cache.ToString("0.0 MB"));
-                result.Add(virtualization);
-                result.Add(item.Properties["NumberOfLogicalProcessors"].Value.ToString());
-                result.Add(speed.ToString("0.00 GHz"));
-                result.Add(ticks.ToString(@"hh\:mm\:ss"));
             }
 
             return result;
         }
+        
     }
 }
