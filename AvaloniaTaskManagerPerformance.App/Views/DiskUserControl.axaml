@@ -1,0 +1,9 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="AvaloniaTaskManagerPerformance.App.Views.DiskUserControl"
+             xmlns:vm="using:AvaloniaTaskManagerPerformance.App.ViewModels"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia">
+    <Design.DataContext>
+        <vm:DiskViewModel/>
+    </Design.DataContext>
+</UserControl>

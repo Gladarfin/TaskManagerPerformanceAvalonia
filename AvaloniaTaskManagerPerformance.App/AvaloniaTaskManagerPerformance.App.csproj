@@ -26,8 +26,8 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.14" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.14" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
-        <PackageReference Include="LiveChartsCore" Version="2.0.0-beta.800" />
-        <PackageReference Include="LiveChartsCore.SkiaSharpView" Version="2.0.0-beta.800" />
+        <PackageReference Include="LiveChartsCore" Version="2.0.0-beta.801" />
+        <PackageReference Include="LiveChartsCore.SkiaSharpView" Version="2.0.0-beta.801" />
         <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-beta.800" />
         <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="7.0.0" />
         <PackageReference Include="System.Management" Version="7.0.1" />

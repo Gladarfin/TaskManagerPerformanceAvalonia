@@ -7,107 +7,109 @@
         Width="800" Height="500"
         x:Class="AvaloniaTaskManagerPerformance.App.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Title="AvaloniaTaskManagerPerformance.App"
-        xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia">
+        Title="AvaloniaTaskManager.Performance"
+        xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+        xmlns:views="clr-namespace:AvaloniaTaskManagerPerformance.App.Views"
+        >
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
+
+    <Window.Styles>
+        <Style Selector="TabControl">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Margin" Value="7 0 0 0"></Setter>
+        </Style>
+        <Style Selector="TabItem">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Margin" Value="0 0 0 0"/>
+            <Setter Property="Width" Value="170"/>
+            <Setter Property="Height" Value="60"/>
+        </Style>
+        <Style Selector="TabItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#E5F3FB"/>
+            <Setter Property="Margin" Value="0 0 0 0"/>
+            <Setter Property="Width" Value="170"/>
+            <Setter Property="Height" Value="60"/>
+        </Style>
+
+        <Style Selector="TabItem:focus">
+            <Setter Property="Background" Value="#E5F3FB"/>
+            <Setter Property="Margin" Value="0 0 0 0"/>
+            <Setter Property="Width" Value="170"/>
+            <Setter Property="Height" Value="60"/>
+        </Style>
+        <Style Selector="TabItem:focus /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Margin" Value="0 0 0 0"/>
+            <Setter Property="Background" Value="#E5F3FB"/>
+            <Setter Property="Width" Value="170"/>
+            <Setter Property="Height" Value="60"/>
+        </Style>
+
+        <Style Selector="TabItem:selected">
+            <Setter Property="Background" Value="#CDE8FF"/>
+            <Setter Property="Margin" Value="0 0 0 0"/>
+            <Setter Property="Width" Value="170"/>
+            <Setter Property="Height" Value="60"/>
+        </Style>
+        <Style Selector="TabItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#CDE8FF"/>
+            <Setter Property="Margin" Value="0 0 0 0"/>
+            <Setter Property="Width" Value="170"/>
+            <Setter Property="Height" Value="60"/>
+        </Style>
+        
+        <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+
+    </Window.Styles>
     
-    <Grid ColumnDefinitions="Auto, *">
-        <StackPanel Grid.Column="0" Orientation="Vertical">
-            <Grid ColumnDefinitions="Auto, *">
-                <Border Grid.Column="0" BorderThickness="1" BorderBrush="SkyBlue" Margin="10 10 10 0">
-                    <lvc:CartesianChart Focusable="False" Width="60" Height="40"
-                                        Series="{Binding SeriesPreview}" 
-                                        AnimationsSpeed="00:00:00.500"
-                                        XAxes="{Binding XAxis}" 
-                                        YAxes="{Binding YAxis}"
-                                        TooltipPosition="Hidden">
-                    </lvc:CartesianChart>
-                </Border>
-                
-                <Grid Grid.Column="1" RowDefinitions="Auto, Auto" ColumnDefinitions="Auto, Auto">
-                    <TextBlock Grid.Row="0" Grid.Column="0" FontSize="12" Text="{Binding CpuLabel}" Margin="0 10 10 0"/>
-                    <TextBlock Grid.Row="1" Grid.Column="0" FontSize="12" Text="{Binding CpuCounter}" Margin="0 0 10 0"/>
-                </Grid>
-            </Grid>
-            <Rectangle Width="200" Height="50" Fill="Orange" Margin="10 10 10 0"></Rectangle>
-            <Rectangle Width="200" Height="50" Fill="Green" Margin="10 10 10 0"></Rectangle>
-            <Rectangle Width="200" Height="50" Fill="Magenta" Margin="10 10 10 0"></Rectangle>
-            <Rectangle Width="200" Height="50" Fill="Blue" Margin="10 10 10 0"></Rectangle>
-        </StackPanel>
-        <Grid Grid.Column="1" RowDefinitions="Auto, *, Auto">
-            <!--Upper part-->
-            <Grid Grid.Row="0" ColumnDefinitions="Auto, *,Auto">
-                <TextBlock Grid.Column="0" Margin="20 25 0 0" FontWeight="Heavy" Text="{Binding CpuLabel}"/>
-                <TextBlock Grid.Column="2" Margin="0 25 20 0" Text="{Binding Info.Name}"/>
-            </Grid>
-            <!--Chart-->
-            <Grid Grid.Row = "1" RowDefinitions="Auto, *, Auto">
-                <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto">
-                    <TextBlock Grid.Column="0" Margin="20 10 0 0" FontSize="10" Text="{Binding UtilLabel}"/>
-                    <TextBlock Grid.Column="2" TextAlignment="Right" Margin="0 10 20 0" FontSize="10" Text="{Binding MaxPercent}"/>
-                </Grid>
-                <Border Grid.Row="1" BorderThickness="1" BorderBrush="SkyBlue" Margin="20 10 20 0">
-                    <lvc:CartesianChart Focusable="False"
-                                                Series="{Binding Series}" 
-                                                AnimationsSpeed="00:00:00.500"
-                                                XAxes="{Binding XAxis}" 
-                                                YAxes="{Binding YAxis}"
-                                                TooltipPosition="Hidden">
-                    </lvc:CartesianChart>
-                </Border>
-                
-                <Grid Grid.Row="2" ColumnDefinitions="Auto, *, Auto">
-                    <TextBlock Grid.Column="0" Margin="20 10 0 0" FontSize="10" Text="{Binding MaxTime}"/>
-                    <TextBlock Grid.Column="2" TextAlignment="Right" Margin="0 10 20 0" FontSize="10" Text="{Binding MinTime}"/>
-                </Grid>
-            </Grid>
-            
-            <!--Bottom part-->
-            <Grid Grid.Row="2" ColumnDefinitions="Auto, Auto, *">
-                <Grid Grid.Column="0" RowDefinitions="Auto,Auto, Auto, Auto" Margin="0 20 20 20">
-                    <Grid Grid.Row="0" RowDefinitions="Auto, Auto" ColumnDefinitions="Auto Auto" >
-                        <TextBlock Grid.Row="0" Grid.Column="0" Margin="18 0 18 0" FontSize="10">Utilization</TextBlock>
-                        <TextBlock Grid.Row ="1" Grid.Column="0" Margin="18 10 18 0" FontWeight="Medium" Text="{Binding CpuCounter}"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Margin="18 0 18 0" FontSize="10">Speed</TextBlock>
-                        <!--пока не знаю где это взять-->
-                        <TextBlock Grid.Row ="1" Grid.Column="1" Margin="18 10 18 0"  FontWeight="Medium"/>
-                    </Grid>
-                    <Grid Grid.Row="1" RowDefinitions="Auto, Auto" ColumnDefinitions="Auto, Auto, 100">
-                        <TextBlock Grid.Row="0" Grid.Column="0" Margin="18 10 18 0" FontSize="10">Processes</TextBlock>
-                        <TextBlock Grid.Row ="1" Grid.Column="0" Margin="18 10 18 0"  FontWeight="Medium" Text="{Binding Processes}"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Margin="18 10 18 0" FontSize="10">Threads</TextBlock>
-                        <TextBlock Grid.Row ="1" Grid.Column="1" Margin="18 10 18 0"  FontWeight="Medium" Text="{Binding Threads}"/>
-                        <TextBlock Grid.Row="0" Grid.Column="2" Margin="18 10 18 0" FontSize="10">Handles</TextBlock>
-                        <TextBlock Grid.Row ="1" Grid.Column="2" Margin="18 10 18 0"  FontWeight="Medium" Text="{Binding Handles}"/>
-                    </Grid>
-                    <Grid Grid.Row="2" RowDefinitions="Auto, Auto">
-                        <TextBlock Grid.Row="0" Margin="18 10 18 0" FontSize="10">Up Time</TextBlock>
-                        <TextBlock Grid.Row="1" Margin="18 10 18 0"  FontWeight="Medium" Text="{Binding Timer}"></TextBlock>
+    <TabControl TabStripPlacement="Left">
+        <!--CPU-->
+        <TabItem Margin="0 10 0 0">
+            <!--Preview-->
+            <TabItem.Header>
+                <Grid ColumnDefinitions="Auto, *">
+                    <Border Grid.Column="0" BorderThickness="1" BorderBrush="#117DBB" Margin="9">
+                        <lvc:CartesianChart Focusable="False" Width="60" Height="40"
+                                            Series="{Binding CpuVM.SeriesPreview}"
+                                            AnimationsSpeed="00:00:00.500"
+                                            XAxes="{Binding CpuVM.XAxis}"
+                                            YAxes="{Binding CpuVM.YAxis}"
+                                            TooltipPosition="Hidden"
+                                            Background="#FFFFFF"/>
+                    </Border>
+                    <Grid Grid.Column="1" RowDefinitions="Auto, Auto" ColumnDefinitions="Auto, Auto">
+                        <TextBlock Grid.Row="0" Grid.Column="0" FontSize="12" Text="{Binding CpuVM.CpuLabel}" Margin="0 10 10 0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" FontSize="12" Text="{Binding CpuVM.CpuCounter}" Margin="0 0 10 0"/>
                     </Grid>
                 </Grid>
-                <Grid Grid.Column="1" ColumnDefinitions="Auto, Auto" RowDefinitions="Auto, Auto, Auto,Auto, Auto, Auto, Auto, Auto" Margin="0 20 20 20">
-                    <TextBlock Grid.Row="0" Grid.Column="0" FontSize="10" Text="{Binding BaseSpeed}"/>
-                    <TextBlock Grid.Row="0" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 0 0 0" Text="{Binding Info.MaxClockSpeed, StringFormat=\{0:0.00 GHz\}}"></TextBlock>
-                    <TextBlock Grid.Row="1" Grid.Column="0" FontSize="10" Margin="0 5 0 0" Text="{Binding Sockets}"/>
-                    <TextBlock Grid.Row="1" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0">1</TextBlock>
-                    <TextBlock Grid.Row="2" Grid.Column="0" FontSize="10" Margin="0 5 0 0" Text="{Binding Cores}"/>
-                    <TextBlock Grid.Row="2" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding Info.NumberOfCores}"></TextBlock>
-                    <TextBlock Grid.Row="3" Grid.Column="0" FontSize="10" Margin="0 5 0 0" Text="{Binding LogicalProcessors}"/>
-                    <TextBlock Grid.Row="3" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding Info.NumberOfLogicalProcessors}"></TextBlock>
-                    <TextBlock Grid.Row="4" Grid.Column="0" FontSize="10" Margin="0 5 0 0" Text="{Binding Virtualization}"/>
-                    <TextBlock Grid.Row="4" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding Info.Virtualization}"></TextBlock>
-                    <TextBlock Grid.Row="5" Grid.Column="0" FontSize="10" Margin="0 5 0 0" Text="{Binding L1CacheLabel}"/>
-                    <!--L1cache знаю где-->
-                    <TextBlock Grid.Row="5" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0">160 KB</TextBlock>
-                    <TextBlock Grid.Row="6" Grid.Column="0" FontSize="10" Margin="0 5 0 0" Text="{Binding L2CacheLabel}"/>
-                    <TextBlock Grid.Row="6" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding Info.L2Cache, StringFormat=\{0:0.0 MB\}}"></TextBlock>
-                    <TextBlock Grid.Row="7" Grid.Column="0" FontSize="10" Margin="0 5 0 0" Text="{Binding L3CacheLabel}"/>
-                    <TextBlock Grid.Row="7" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding Info.L3Cache, StringFormat=\{0:0.0 MB\}}"></TextBlock>
-                </Grid>
-            </Grid>
-        </Grid>
-    </Grid>
+            </TabItem.Header>
+            <views:CpuUserControl></views:CpuUserControl>
+        </TabItem>
+        
+        <!--Memory-->
+        <TabItem Margin="0 0 0 0">
+             <TabItem.Header>
+                 <TextBlock Text="Memory"/>
+             </TabItem.Header>
+         </TabItem>
+        
+         <!--Disk-->
+         <TabItem Margin="0 0 0 0">
+             <TabItem.Header>
+         <TextBlock Text="Disk 0"/>
+             </TabItem.Header>
+         </TabItem>
+         
+        <!--Wi-Fi-->
+         <TabItem Margin="0 0 0 0">
+             <TabItem.Header>
+                 <TextBlock Text="Wi-Fi"/>
+             </TabItem.Header>
+         </TabItem>
+    </TabControl>
+    
 </Window>
