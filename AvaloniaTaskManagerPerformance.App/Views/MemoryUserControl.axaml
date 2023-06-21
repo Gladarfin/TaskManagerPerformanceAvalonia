@@ -6,4 +6,71 @@
     <Design.DataContext>
         <vm:MemoryViewModel/>
     </Design.DataContext>
+    
+    <Grid RowDefinitions="Auto, *, Auto, Auto">
+        <!--upper part-->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto">
+            <TextBlock Grid.Column="0" Margin="20 25 0 0" FontWeight="Heavy" Text="{Binding MemoryLabel}"/>
+            <TextBlock Grid.Column="2" Margin="0 25 20 0" Text="{Binding InstalledMemory, StringFormat=\{0:0.0 GB\}}"/>
+        </Grid>
+        <!--chart-->
+        <Grid Grid.Row="1" RowDefinitions="Auto, *, Auto">
+            <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto">
+                <TextBlock Grid.Column="0" Margin="20 10 0 0" FontSize="10" Text="{Binding MemoryUsageLabel}"/>
+                <TextBlock Grid.Column="2" TextAlignment="Right" Margin="0 10 20 0" FontSize="10" Text="{Binding MemoryMaxLabel}"/>
+            </Grid>
+            <Border Grid.Row="1" BorderThickness="1" BorderBrush="#8B12AE" Margin="20 10 20 0">
+                <lvc:CartesianChart Focusable="False"
+                                    Series="{Binding Series}" 
+                                    AnimationsSpeed="00:00:00.500"
+                                    XAxes="{Binding Charts.XAxis}" 
+                                    YAxes="{Binding Charts.YAxis}"
+                                    TooltipPosition="Hidden">
+                </lvc:CartesianChart>
+            </Border>
+            <Grid Grid.Row="2" ColumnDefinitions="Auto, *, Auto">
+                <TextBlock Grid.Column="0" Margin="20 10 0 0" FontSize="10" Text="{Binding MaxTime}"/>
+                <TextBlock Grid.Column="2" TextAlignment="Right" Margin="0 10 20 0" FontSize="10" Text="{Binding MinTime}"/>
+            </Grid>
+        </Grid>
+        <!--memory composition-->
+        <Grid Grid.Row="2" RowDefinitions="Auto, Auto">
+            <TextBlock Grid.Row="0" Margin="20 10 0 0" FontSize="10" Text="{Binding MemoryCompositionLabel}"/>
+            <Rectangle Grid.Row="1" Margin="20 10 20 0" Height="52" Fill="#8B12AE"/>
+        </Grid>
+        <!--bottom part-->
+        <Grid Grid.Row="3" ColumnDefinitions="Auto, Auto, *" Margin="0 0 0 30">
+            <Grid Grid.Column="0" RowDefinitions="Auto, Auto, Auto">
+                <Grid Grid.Row="0" RowDefinitions="Auto, Auto" ColumnDefinitions="Auto, Auto">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="18 10 18 0" FontSize="10" Text="{Binding InUseLabel}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Margin="18 10 18 0" FontWeight="Medium" Text="Placeholder In Use"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Margin="18 10 18 0" FontSize="10" Text="{Binding MemoryAvailableLabel}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Margin="18 10 18 0" FontWeight="Medium" Text="AvailablePH"/>
+                </Grid>
+                <Grid Grid.Row="1" RowDefinitions="Auto, Auto" ColumnDefinitions="Auto, Auto">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="18 10 18 0" FontSize="10" Text="{Binding CommittedLabel}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Margin="18 10 18 0" FontWeight="Medium" Text="CommittedPH"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Margin="18 10 18 0" FontSize="10" Text="{Binding CachedLabel}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Margin="18 10 18 0" FontWeight="Medium" Text="CachedPH"/>
+                </Grid>
+                <Grid Grid.Row="2" RowDefinitions="Auto, Auto" ColumnDefinitions="Auto, Auto">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="18 10 18 0" FontSize="10" Text="{Binding PagedPoolLabel}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Margin="18 10 18 0" FontWeight="Medium" Text="PagedPoolPH"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Margin="18 10 18 0" FontSize="10" Text="{Binding NonPagedPoolLabel}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Margin="18 10 18 0" FontWeight="Medium" Text="NonPagedPoolPH"/>
+                </Grid>
+            </Grid>
+            <Grid Grid.Column="1" RowDefinitions="Auto, Auto, Auto, Auto" ColumnDefinitions="Auto, Auto">
+                <TextBlock Grid.Row="0" Grid.Column="0" Margin="0 5 0 0" FontSize="10" Text="{Binding SpeedLabel}"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="3200 MHz PH"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0 5 0 0" FontSize="10" Text="{Binding SlotsUsedLabel}"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="2 of 2 PH"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0 5 0 0" FontSize="10" Text="{Binding FormFactorLabel}"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="Row of chips PH"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0 5 0 0" FontSize="10" Text="{Binding HardwareReservedLabel}"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="224 MB PH"/>
+            </Grid>
+        </Grid>
+    </Grid>
+    
 </UserControl>

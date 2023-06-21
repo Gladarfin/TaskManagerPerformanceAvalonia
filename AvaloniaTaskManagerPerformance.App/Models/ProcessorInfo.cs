@@ -7,7 +7,7 @@ public class ProcessorInfo
     public uint NumberOfCores { get; set; }
     public uint NumberOfLogicalProcessors { get; set; }
     
-    public double L1Cache { get; set; }
+    public int L1Cache { get; set; }
     public double L2Cache { get; set; }
     public double L3Cache { get; set; }
     public double MaxClockSpeed { get; set; }

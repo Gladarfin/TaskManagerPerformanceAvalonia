@@ -8,8 +8,6 @@ using AvaloniaTaskManagerPerformance.App.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels;
@@ -26,31 +24,9 @@ public partial class CpuViewModel : ObservableObject
     [ObservableProperty] private int _handles;
     [ObservableProperty] private string _cpuCounter;
     [ObservableProperty] private List<ISeries> _series;
-    [ObservableProperty] private List<ISeries> _seriesPreview;
-    [ObservableProperty]
-    private List<Axis> _xAxis = new List<Axis>
-    {
-        new Axis
-        {
-            MaxLimit = 62,
-            MinLimit = 2,
-            MinStep = 1,
-            IsVisible = false,
-        }
-    };
-    [ObservableProperty]
-    private List<Axis> _yAxis = new List<Axis>
-    {
-        new Axis
-        {
-            MaxLimit = 100,
-            MinLimit = 0,
-            MinStep = 10,
-            IsVisible = false
-        }
-    };
 
     public static ProcessorInfo Info { get; private set; } = new();
+    public Charts Charts { get; } = new();
 
     #endregion
 
@@ -70,12 +46,20 @@ public partial class CpuViewModel : ObservableObject
     [ObservableProperty] private string _l2CacheLabel = "L2 cache:";
     [ObservableProperty] private string _l3CacheLabel = "L3 cache:";
     
-    #endregion
+    [ObservableProperty] private string _utilizationLabel = "Utilization";
+    [ObservableProperty] private string _speedLabel = "Speed";
+    [ObservableProperty] private string _processesLabel = "Processes";
+    [ObservableProperty] private string _threadsLabel = "Threads";
+    [ObservableProperty] private string _handlesLabel = "Handles";
+    [ObservableProperty] private string _uptimeLabel = "Up time";
     
     #endregion
     
-    private List<ObservablePoint> _observableValues;
+    #endregion
+    
+    private readonly List<ObservablePoint> _observableValues;
     private const int Index = 62;
+    private static SeriesHelper SeriesHelper { get; } = new();
     
     private readonly PerformanceCounter _cpuLoad = new("Processor Information", "% Processor Utility", "_Total");
     private readonly PerformanceCounter _threadsCount = new("System", "Threads");
@@ -134,16 +118,35 @@ public partial class CpuViewModel : ObservableObject
                 ? "Enabled"
                 : "Disabled";
         }
-    
+
+        result.L1Cache = GetCacheL1();
         return result;
+    }
+
+    private static int GetCacheL1()
+    {
+        var searcher = new ManagementObjectSearcher("Select * from Win32_CacheMemory");
+        var cacheSize = 0;
+
+        foreach (var cache in searcher.Get())
+        {
+            var level = (ushort)cache["Level"];
+            if (level == 3)
+            {
+                cacheSize += Convert.ToInt32(cache["MaxCacheSize"]);
+            }
+        }
+
+        return cacheSize;
     }
 
     private async Task GetNextCpuLoadTrackingValue()
     {
         while (true)
         {
-            RemoveFirstItem();
+            RemoveFirstCpuLoadValue();
             AddNextCpuLoadValue();
+            UpdateSeriesValues();
             await Task.Delay(1000);
         }
     }
@@ -151,31 +154,25 @@ public partial class CpuViewModel : ObservableObject
     private void AddNextCpuLoadValue()
     {
         _observableValues.Add(new ObservablePoint(Index, (int)_cpuLoad.NextValue()));
-        Series = SetSeriesValues(new SKColor(241,246,250), new SKColor(156, 200, 226));
-        SeriesPreview = SetSeriesValues(new SKColor(241, 246, 250), new SKColor(17, 125, 187));
     }
 
-    private List<ISeries> SetSeriesValues(SKColor fillColor, SKColor strokeColor)
+    private void UpdateSeriesValues()
     {
-        return new List<ISeries>
-        {
-            new LineSeries<ObservablePoint>
-            {
-                Values = _observableValues,
-                Fill = new SolidColorPaint(fillColor),
-                Stroke = new SolidColorPaint(strokeColor){StrokeThickness = 1},
-                GeometryFill = null,
-                GeometryStroke = null,
-                LineSmoothness = 0
-            }
-        };
+        Series = SeriesHelper.SetSeriesValues(
+            new SKColor(241,246,250), 
+            new SKColor(156, 200, 226), 
+            _observableValues);
+        Charts.SeriesPreview = SeriesHelper.SetSeriesValues(
+            new SKColor(241, 246, 250), 
+            new SKColor(17, 125, 187), 
+            _observableValues);
     }
+
+    
      
-     private void RemoveFirstItem()
+     private void RemoveFirstCpuLoadValue()
      {
          _observableValues.RemoveAt(0);
-         //костыль, чтобы можно было добавить по оси Х ограничения с 0 до 60 => нужно уменьшать все индексы после удаления элемента,
-         //иначе не будет отображаться (но это сделано только для того, чтобы выглядело, как в TaskManager)
          foreach (var elem in _observableValues)
          {
              elem.X--;

@@ -74,10 +74,10 @@
                 <Grid ColumnDefinitions="Auto, *">
                     <Border Grid.Column="0" BorderThickness="1" BorderBrush="#117DBB" Margin="9">
                         <lvc:CartesianChart Focusable="False" Width="60" Height="40"
-                                            Series="{Binding CpuVM.SeriesPreview}"
+                                            Series="{Binding CpuVM.Charts.SeriesPreview}"
                                             AnimationsSpeed="00:00:00.500"
-                                            XAxes="{Binding CpuVM.XAxis}"
-                                            YAxes="{Binding CpuVM.YAxis}"
+                                            XAxes="{Binding CpuVM.Charts.XAxis}"
+                                            YAxes="{Binding CpuVM.Charts.YAxis}"
                                             TooltipPosition="Hidden"
                                             Background="#FFFFFF"/>
                     </Border>
@@ -87,28 +87,73 @@
                     </Grid>
                 </Grid>
             </TabItem.Header>
-            <views:CpuUserControl></views:CpuUserControl>
+            <views:CpuUserControl/>
         </TabItem>
         
         <!--Memory-->
         <TabItem Margin="0 0 0 0">
-             <TabItem.Header>
-                 <TextBlock Text="Memory"/>
+            <TabItem.Header>
+                 <Grid ColumnDefinitions="Auto, *">
+                     <Border Grid.Column="0" BorderThickness="1" BorderBrush="#8B12AE" Margin="9">
+                         <lvc:CartesianChart Focusable="False" Width="60" Height="40"
+                                             Series="{Binding MemoryVM.Charts.SeriesPreview}"
+
+                                             XAxes="{Binding MemoryVM.Charts.XAxis}"
+                                             YAxes="{Binding MemoryVM.Charts.YAxis}"
+                                             TooltipPosition="Hidden"
+                                             Background="#FFFFFF"/>
+                     </Border>
+                     <Grid Grid.Column="1" RowDefinitions="Auto, Auto" ColumnDefinitions="Auto, Auto">
+                         <TextBlock Grid.Row="0" Grid.Column="0" FontSize="12" Text="{Binding MemoryVM.MemoryLabel}" Margin="0 10 10 0"/>
+                         <TextBlock Grid.Row="1" Grid.Column="0" FontSize="12" Text="{Binding MemoryVM.MemoryUsageLabel}" Margin="0 0 10 0"/>
+                     </Grid>
+                 </Grid>
              </TabItem.Header>
-         </TabItem>
+            <views:MemoryUserControl/>
+        </TabItem>
         
          <!--Disk-->
          <TabItem Margin="0 0 0 0">
              <TabItem.Header>
-         <TextBlock Text="Disk 0"/>
+                 <Grid ColumnDefinitions="Auto, *">
+                     <Border Grid.Column="0" BorderThickness="1" BorderBrush="#4DA70C" Margin="9">
+                         <lvc:CartesianChart Focusable="False" Width="60" Height="40"
+                                             Series="{Binding DiskVM.Charts.SeriesPreview}"
+
+                                             XAxes="{Binding DiskVM.Charts.XAxis}"
+                                             YAxes="{Binding DiskVM.Charts.YAxis}"
+                                             TooltipPosition="Hidden"
+                                             Background="#FFFFFF"/>
+                     </Border>
+                     <Grid Grid.Column="1" RowDefinitions="Auto, Auto" ColumnDefinitions="Auto, Auto">
+                         <TextBlock Grid.Row="0" Grid.Column="0" FontSize="12" Text="{Binding DiskVM.DiskLabel}" Margin="0 10 10 0"/>
+                         <TextBlock Grid.Row="1" Grid.Column="0" FontSize="12" Text="{Binding DiskVM.DiskTypeLabel}" Margin="0 0 10 0"/>
+                     </Grid>
+                 </Grid>
              </TabItem.Header>
+             <views:DiskUserControl/>
          </TabItem>
          
         <!--Wi-Fi-->
          <TabItem Margin="0 0 0 0">
              <TabItem.Header>
-                 <TextBlock Text="Wi-Fi"/>
+                 <Grid ColumnDefinitions="Auto, *">
+                     <Border Grid.Column="0" BorderThickness="1" BorderBrush="#A94F01" Margin="9">
+                         <lvc:CartesianChart Focusable="False" Width="60" Height="40"
+                                             Series="{Binding WiFiVM.Charts.SeriesPreview}"
+
+                                             XAxes="{Binding WiFiVM.Charts.XAxis}"
+                                             YAxes="{Binding WiFiVM.Charts.YAxis}"
+                                             TooltipPosition="Hidden"
+                                             Background="#FFFFFF"/>
+                     </Border>
+                     <Grid Grid.Column="1" RowDefinitions="Auto, Auto" ColumnDefinitions="Auto, Auto">
+                         <TextBlock Grid.Row="0" Grid.Column="0" FontSize="12" Text="{Binding WiFiVM.WiFiLabel}" Margin="0 10 10 0"/>
+                         <TextBlock Grid.Row="1" Grid.Column="0" FontSize="12" Text="{Binding WiFiVM.WiFiTypeLabel}" Margin="0 0 10 0"/>
+                     </Grid>
+                 </Grid>
              </TabItem.Header>
+             <views:WiFiUserControl/>
          </TabItem>
     </TabControl>
     
