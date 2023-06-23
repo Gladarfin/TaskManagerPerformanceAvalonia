@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.Threading;
 using AvaloniaTaskManagerPerformance.App.Models;
-using AvaloniaTaskManagerPerformance.App.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels;
@@ -30,12 +27,18 @@ public partial class MemoryViewModel  : ObservableObject
     [ObservableProperty] private float _reservedMemory;
     [ObservableProperty] private string _cachedMemory;
     [ObservableProperty] private int _memorySpeed;
+    [ObservableProperty] private string _memoryInfoPreview;
     
     [ObservableProperty] private List<ISeries> _something;
     public Charts Charts { get; } = new();
 
-    private readonly MemoryInfoHelper _mih;
+    public Axis[] XAxes { get; set; } =
+    {
+        new Axis { MinLimit = 0, MaxLimit = 100 }
+    };
     
+    private readonly MemoryInfoHelper _mih;
+
     #region Labels
     
     [ObservableProperty] private string _memoryLabel = "Memory";
@@ -74,17 +77,6 @@ public partial class MemoryViewModel  : ObservableObject
         }
 
         StartMemoryMeasuring();
-
-        Something = new List<ISeries>
-        {
-           new RowSeries<int>
-            {
-                Values = new List<int> { 8, -3, 4 },
-                Stroke = null,
-                Fill = new SolidColorPaint(SKColors.Green),
-            }
-        };
-
     }
 
     private void StartMemoryMeasuring()
@@ -112,6 +104,7 @@ public partial class MemoryViewModel  : ObservableObject
             ReservedMemory = (InstalledMemory - _mih.TotalVisibleMemory) * 1024;
             //slightly different from TM
             CachedMemory = _mih.Cached;
+            MemoryInfoPreview = $"{MemoryInUse:F1}/{TotalVisibleMemory:F1} ({MemoryInUse * 100 / TotalVisibleMemory:F0} %)";
         };
 
         

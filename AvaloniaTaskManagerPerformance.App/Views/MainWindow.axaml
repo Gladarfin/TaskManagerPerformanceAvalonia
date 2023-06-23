@@ -55,7 +55,7 @@
                      </Border>
                      <Grid Grid.Column="1" RowDefinitions="Auto, Auto" ColumnDefinitions="Auto, Auto">
                          <TextBlock Grid.Row="0" Grid.Column="0" FontSize="12" Text="{Binding MemoryVM.MemoryLabel}" Margin="0 10 10 0"/>
-                         <TextBlock Grid.Row="1" Grid.Column="0" FontSize="12" Text="{Binding MemoryVM.MemoryUsageLabel}" Margin="0 0 10 0"/>
+                         <TextBlock Grid.Row="1" Grid.Column="0" FontSize="12" Text="{Binding MemoryVM.MemoryInfoPreview}" Margin="0 0 10 0"/>
                      </Grid>
                  </Grid>
              </TabItem.Header>
