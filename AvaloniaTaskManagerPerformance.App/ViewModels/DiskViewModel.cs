@@ -16,9 +16,6 @@ public partial class DiskViewModel : ObservableObject
     
     [ObservableProperty] private List<ISeries> _series;
     
-    
-    public DiskInfo Info { get; set; }
-
     public Charts Charts { get; } = new();
     
     #endregion
@@ -64,8 +61,6 @@ public partial class DiskViewModel : ObservableObject
     
     private void StartDiskMeasuring()
     {
-        Info = GetDiskInfo();
-        
         var timer = new DispatcherTimer
         {
             Interval = TimeSpan.FromSeconds(1)
@@ -78,14 +73,6 @@ public partial class DiskViewModel : ObservableObject
         
         Task.Run(GetNextDiskLoadTrackingValue);
         timer.Start();
-    }
-    
-    
-    private static DiskInfo GetDiskInfo()
-    {
-        var result = new DiskInfo();
-
-        return result;
     }
 
     private async Task GetNextDiskLoadTrackingValue()

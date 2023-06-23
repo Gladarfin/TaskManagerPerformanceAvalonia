@@ -16,7 +16,6 @@ public partial class WiFiViewModel : ObservableObject
 
     [ObservableProperty] private List<ISeries> _series;
     
-    public WiFiInfo Info { get; set; }
 
     public Charts Charts { get; } = new();
 
@@ -61,8 +60,7 @@ public partial class WiFiViewModel : ObservableObject
         
         private void StartDiskMeasuring()
         {
-            Info = GetWiFiInfo();
-            
+
             var timer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(1)
@@ -76,15 +74,7 @@ public partial class WiFiViewModel : ObservableObject
             Task.Run(GetNextWiFiLoadTrackingValue);
             timer.Start();
         }
-        
-        
-        private static WiFiInfo GetWiFiInfo()
-        {
-            var result = new WiFiInfo();
-    
-            return result;
-        }
-    
+
         private async Task GetNextWiFiLoadTrackingValue()
         {
             while (true)

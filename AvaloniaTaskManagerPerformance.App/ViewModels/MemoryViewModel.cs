@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using AvaloniaTaskManagerPerformance.App.Models;
+using AvaloniaTaskManagerPerformance.App.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels;
@@ -15,20 +17,29 @@ namespace AvaloniaTaskManagerPerformance.App.ViewModels;
 public partial class MemoryViewModel  : ObservableObject
 {
     #region Properties
-
-    [ObservableProperty] private double _memoryUsage;
-    [ObservableProperty] private double _installedMemory;
-    
     [ObservableProperty] private List<ISeries> _series;
-
-    public MemoryInfo Info { get; set; }
+    [ObservableProperty] private float _installedMemory;
+    [ObservableProperty] private float _totalVisibleMemory;
+    [ObservableProperty] private float _memoryInUse;
+    [ObservableProperty] private string _freePhysicalMemory;
+    [ObservableProperty] private string _committedMemory;
+    [ObservableProperty] private float _pagedPool;
+    [ObservableProperty] private float _nonPagedPool;
+    [ObservableProperty] private string _slots;
+    [ObservableProperty] private string _formFactor;
+    [ObservableProperty] private float _reservedMemory;
+    [ObservableProperty] private string _cachedMemory;
+    [ObservableProperty] private int _memorySpeed;
+    
+    [ObservableProperty] private List<ISeries> _something;
     public Charts Charts { get; } = new();
 
+    private readonly MemoryInfoHelper _mih;
+    
     #region Labels
     
     [ObservableProperty] private string _memoryLabel = "Memory";
     [ObservableProperty] private string _memoryUsageLabel = "Memory usage";
-    [ObservableProperty] private string _memoryMaxLabel = "7,8 GB";
     [ObservableProperty] private string _maxTime = "60 seconds";
     [ObservableProperty] private string _minTime = "0";
     [ObservableProperty] private string _memoryCompositionLabel = "Memory composition";
@@ -48,13 +59,14 @@ public partial class MemoryViewModel  : ObservableObject
     #endregion
     
     private readonly List<ObservablePoint> _observableValues;
-    
-    private readonly PerformanceCounter _availableMemory = new PerformanceCounter("Memory", "Available MBytes");
+
     private static SeriesHelper SeriesHelper { get; } = new();
+    private const int Index = 62;
     
     public MemoryViewModel()
     {
         _observableValues = new List<ObservablePoint>();
+        _mih = new MemoryInfoHelper();
         
         for (var i = 0; i < 62; i++)
         {
@@ -62,33 +74,49 @@ public partial class MemoryViewModel  : ObservableObject
         }
 
         StartMemoryMeasuring();
+
+        Something = new List<ISeries>
+        {
+           new RowSeries<int>
+            {
+                Values = new List<int> { 8, -3, 4 },
+                Stroke = null,
+                Fill = new SolidColorPaint(SKColors.Green),
+            }
+        };
+
     }
 
     private void StartMemoryMeasuring()
     {
-        Info = GetMemoryInfo();
-
-        InstalledMemory = GetInstalledMemory();
-        
         var timer = new DispatcherTimer
         {
             Interval = TimeSpan.FromSeconds(1)
         };
-        
+
+        Slots = _mih.GetSlots();
+        InstalledMemory = _mih.GetInstalledMemory();
+        //On my laptop it doesn't work, so i just put value from task manager manually in xaml
+        FormFactor = _mih.GetFormFactor();
+        MemorySpeed = _mih.GetMemorySpeed();
+
         timer.Tick += (sender, e) =>
         {
-            
+            _mih.UpdateMemoryInfoValues();
+            TotalVisibleMemory = _mih.TotalVisibleMemory;
+            MemoryInUse = _mih.MemoryInUse;
+            FreePhysicalMemory = _mih.FreePhysicalMemory;
+            CommittedMemory = _mih.CommittedMemory;
+            PagedPool = _mih.PagedPool;
+            NonPagedPool = _mih.NonPagedPool;
+            ReservedMemory = (InstalledMemory - _mih.TotalVisibleMemory) * 1024;
+            //slightly different from TM
+            CachedMemory = _mih.Cached;
         };
+
         
         Task.Run(GetNextMemoryLoadTrackingValue);
         timer.Start();
-    }
-
-    private static MemoryInfo GetMemoryInfo()
-    {
-        var result = new MemoryInfo();
-
-        return result;
     }
 
     private async Task GetNextMemoryLoadTrackingValue()
@@ -113,7 +141,8 @@ public partial class MemoryViewModel  : ObservableObject
 
     private void AddNextMemoryLoadValue()
     {
-        
+        var nextValue = (int)(MemoryInUse * 100 / TotalVisibleMemory);
+        _observableValues.Add(new ObservablePoint(Index, nextValue));
     }
 
     private void UpdateSeriesValues()
@@ -127,17 +156,4 @@ public partial class MemoryViewModel  : ObservableObject
             new SKColor(139, 18, 174),
             _observableValues);
     }
-
-    private double GetInstalledMemory()
-    {
-        long memKB;
-        GetPhysicallyInstalledSystemMemory(out memKB);
-        return memKB / 1024 / 1024;
-    }
-    
-    
-    [DllImport("kernel32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool GetPhysicallyInstalledSystemMemory(out long totalMemoryInKilobytes);
-
 }
