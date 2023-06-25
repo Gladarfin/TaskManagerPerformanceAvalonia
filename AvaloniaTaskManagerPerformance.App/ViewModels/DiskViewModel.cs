@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using AvaloniaTaskManagerPerformance.App.Models;
+using AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
@@ -15,20 +16,27 @@ public partial class DiskViewModel : ObservableObject
     #region Properties
     
     [ObservableProperty] private List<ISeries> _series;
+    [ObservableProperty] private double _diskCapacity;
+    [ObservableProperty] private double _diskFormattedCapacity;
+    [ObservableProperty] private string _diskType;
+    [ObservableProperty] private string _diskLabel;
     
     public Charts Charts { get; } = new();
+
+    private readonly DiskInfoHelper _dih;
     
     #endregion
     
     private readonly List<ObservablePoint> _observableValues;
     
     private static SeriesHelper SeriesHelper { get; } = new();
+    private const int Index = 62;
+    
     
     #region Labels
     
-    [ObservableProperty] private string _diskLabel = "Disk 0";
+    
     [ObservableProperty] private string _diskModelLabel = "Disk Model Placeholder";
-    [ObservableProperty] private string _diskTypeLabel = "SSD";
     [ObservableProperty] private string _activeTimeLabel = "Active time";
     [ObservableProperty] private string _maxPercent = "100%";
     [ObservableProperty] private string _maxTime = "60 seconds";
@@ -55,7 +63,9 @@ public partial class DiskViewModel : ObservableObject
         {
             _observableValues.Add(new ObservablePoint(i, -1));
         }
-        
+
+        _dih = new DiskInfoHelper();
+        _dih.GetDiskConstValues();
         StartDiskMeasuring();
     }
     
@@ -65,6 +75,11 @@ public partial class DiskViewModel : ObservableObject
         {
             Interval = TimeSpan.FromSeconds(1)
         };
+
+        DiskLabel = $"Disk 0 ({_dih.DiskLetters})";
+        DiskType = _dih.DiskType;
+        DiskCapacity = _dih.Capacity;
+        DiskFormattedCapacity = _dih.Capacity;
         
         timer.Tick += (sender, e) =>
         {

@@ -5,6 +5,7 @@ using System.Management;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using AvaloniaTaskManagerPerformance.App.Models;
+using AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
@@ -45,7 +46,6 @@ public partial class CpuViewModel : ObservableObject
     [ObservableProperty] private string _l1CacheLabel = "L1 cache:";
     [ObservableProperty] private string _l2CacheLabel = "L2 cache:";
     [ObservableProperty] private string _l3CacheLabel = "L3 cache:";
-    
     [ObservableProperty] private string _utilizationLabel = "Utilization";
     [ObservableProperty] private string _speedLabel = "Speed";
     [ObservableProperty] private string _processesLabel = "Processes";
@@ -118,7 +118,7 @@ public partial class CpuViewModel : ObservableObject
                 ? "Enabled"
                 : "Disabled";
         }
-
+        
         result.L1Cache = GetCacheL1();
         return result;
     }
@@ -168,9 +168,7 @@ public partial class CpuViewModel : ObservableObject
             _observableValues);
     }
 
-    
-     
-     private void RemoveFirstCpuLoadValue()
+    private void RemoveFirstCpuLoadValue()
      {
          _observableValues.RemoveAt(0);
          foreach (var elem in _observableValues)

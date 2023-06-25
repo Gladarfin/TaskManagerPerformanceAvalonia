@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using AvaloniaTaskManagerPerformance.App.Models;
+using AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
@@ -14,6 +15,7 @@ namespace AvaloniaTaskManagerPerformance.App.ViewModels;
 public partial class MemoryViewModel  : ObservableObject
 {
     #region Properties
+    
     [ObservableProperty] private List<ISeries> _series;
     [ObservableProperty] private float _installedMemory;
     [ObservableProperty] private float _totalVisibleMemory;
@@ -32,11 +34,6 @@ public partial class MemoryViewModel  : ObservableObject
     [ObservableProperty] private List<ISeries> _something;
     public Charts Charts { get; } = new();
 
-    public Axis[] XAxes { get; set; } =
-    {
-        new Axis { MinLimit = 0, MaxLimit = 100 }
-    };
-    
     private readonly MemoryInfoHelper _mih;
 
     #region Labels

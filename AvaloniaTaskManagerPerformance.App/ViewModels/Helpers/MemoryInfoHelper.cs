@@ -4,7 +4,7 @@ using System.Linq;
 using System.Management;
 using AvaloniaTaskManagerPerformance.App.Models;
 
-namespace AvaloniaTaskManagerPerformance.App.ViewModels;
+namespace AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
 
 public class MemoryInfoHelper
 {

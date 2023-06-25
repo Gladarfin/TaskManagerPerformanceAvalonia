@@ -5,7 +5,7 @@ using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 
-namespace AvaloniaTaskManagerPerformance.App.ViewModels;
+namespace AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
 
 public class SeriesHelper
 {
