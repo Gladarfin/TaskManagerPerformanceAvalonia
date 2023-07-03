@@ -24,8 +24,9 @@ public partial class CpuViewModel : ObservableObject
     [ObservableProperty] private int _threads;
     [ObservableProperty] private int _handles;
     [ObservableProperty] private string _cpuCounter;
+    [ObservableProperty] private double _cpuSpeed;
     [ObservableProperty] private List<ISeries> _series;
-
+    [ObservableProperty] private List<ISeries> _seriesPreview;
     public static ProcessorInfo Info { get; private set; } = new();
     public Charts Charts { get; } = new();
 
@@ -59,12 +60,13 @@ public partial class CpuViewModel : ObservableObject
     
     private readonly List<ObservablePoint> _observableValues;
     private const int Index = 62;
+    private int tmpCpu;
     private static SeriesHelper SeriesHelper { get; } = new();
     
     private readonly PerformanceCounter _cpuLoad = new("Processor Information", "% Processor Utility", "_Total");
     private readonly PerformanceCounter _threadsCount = new("System", "Threads");
     private readonly PerformanceCounter _handlesCount = new("Process", "Handle Count", "_Total");
-    
+    private static readonly PerformanceCounter _cpuPerformance = new ("Processor Information", "% Processor Performance", "_Total");
     public CpuViewModel()
     {
         _observableValues = new List<ObservablePoint>();
@@ -84,22 +86,23 @@ public partial class CpuViewModel : ObservableObject
         {
             Interval = TimeSpan.FromSeconds(1)
         };
-    
-        //все обновляемые значения в окне
+
         timer.Tick += (sender, e) =>
         {
             Timer = TimeSpan.FromMilliseconds(Environment.TickCount & int.MaxValue).ToString(@"dd\:hh\:mm\:ss");
             Processes = Process.GetProcesses().Length;
             Threads = (int)_threadsCount.NextValue();
             Handles = (int)_handlesCount.NextValue();
-            var tmpCpu = Math.Min((int)_cpuLoad.NextValue(), 100);
-            CpuCounter = $"{tmpCpu.ToString()}%";
+            tmpCpu = Math.Min((int)_cpuLoad.NextValue(), 100);
+            RemoveFirstCpuLoadValue();
+            AddNextCpuLoadValue(tmpCpu);
+            UpdateSeriesValues();
+            Task.Run(GetSpeed);
         };
         
         timer.Start();
-        Task.Run(GetNextCpuLoadTrackingValue);
     }
-    
+
     private static ProcessorInfo GetProcessorInfo()
     {
         var result = new ProcessorInfo();
@@ -125,7 +128,7 @@ public partial class CpuViewModel : ObservableObject
 
     private static int GetCacheL1()
     {
-        var searcher = new ManagementObjectSearcher("Select * from Win32_CacheMemory");
+        using var searcher = new ManagementObjectSearcher("Select * from Win32_CacheMemory");
         var cacheSize = 0;
 
         foreach (var cache in searcher.Get())
@@ -140,20 +143,12 @@ public partial class CpuViewModel : ObservableObject
         return cacheSize;
     }
 
-    private async Task GetNextCpuLoadTrackingValue()
+    private void AddNextCpuLoadValue(int cpuLoadValue)
     {
-        while (true)
-        {
-            RemoveFirstCpuLoadValue();
-            AddNextCpuLoadValue();
-            UpdateSeriesValues();
-            await Task.Delay(1000);
-        }
-    }
-
-    private void AddNextCpuLoadValue()
-    {
-        _observableValues.Add(new ObservablePoint(Index, (int)_cpuLoad.NextValue()));
+        // Ok, i don't know why (probably because UI elements from MainWindow rendering earlier than from UserControls
+        // but values in views (on utilization labels) slightly different). Maybe I'll return to it later.
+        CpuCounter = $"{cpuLoadValue}%";
+        _observableValues.Add(new ObservablePoint(Index, cpuLoadValue));
     }
 
     private void UpdateSeriesValues()
@@ -162,7 +157,7 @@ public partial class CpuViewModel : ObservableObject
             new SKColor(241,246,250), 
             new SKColor(156, 200, 226), 
             _observableValues);
-        Charts.SeriesPreview = SeriesHelper.SetSeriesValues(
+        SeriesPreview = SeriesHelper.SetSeriesValues(
             new SKColor(241, 246, 250), 
             new SKColor(17, 125, 187), 
             _observableValues);
@@ -176,5 +171,18 @@ public partial class CpuViewModel : ObservableObject
              elem.X--;
          }
      }
+    
+    private async Task GetSpeed()
+    {
+        var maxSpeed = 0.0;
+        using var searcher = new ManagementObjectSearcher("SELECT *, Name FROM Win32_Processor");
+        foreach (var obj in searcher.Get())
+        {
+            maxSpeed = Convert.ToDouble(obj["MaxClockSpeed"]) / 1000;
+            await Task.Delay(1);
+            break;
+        }
+        CpuSpeed = maxSpeed * _cpuPerformance.NextValue() / 100;
+    }
 
 }

@@ -20,6 +20,7 @@ public partial class DiskViewModel : ObservableObject
     [ObservableProperty] private double _diskFormattedCapacity;
     [ObservableProperty] private string _diskType;
     [ObservableProperty] private string _diskLabel;
+    [ObservableProperty] private int _diskActiveTime;
     
     public Charts Charts { get; } = new();
 
@@ -36,7 +37,7 @@ public partial class DiskViewModel : ObservableObject
     #region Labels
     
     
-    [ObservableProperty] private string _diskModelLabel = "Disk Model Placeholder";
+    [ObservableProperty] private string _diskModel = "Disk Model Placeholder";
     [ObservableProperty] private string _activeTimeLabel = "Active time";
     [ObservableProperty] private string _maxPercent = "100%";
     [ObservableProperty] private string _maxTime = "60 seconds";
@@ -80,13 +81,15 @@ public partial class DiskViewModel : ObservableObject
         DiskType = _dih.DiskType;
         DiskCapacity = _dih.Capacity;
         DiskFormattedCapacity = _dih.Capacity;
+        DiskModel = _dih.Model;
         
         timer.Tick += (sender, e) =>
         {
-            
+            _dih.GetDiskInfo();
+            DiskActiveTime = _dih.DiskActiveTime;
         };
         
-        Task.Run(GetNextDiskLoadTrackingValue);
+        //Task.Run(GetNextDiskLoadTrackingValue);
         timer.Start();
     }
 

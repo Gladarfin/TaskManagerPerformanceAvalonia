@@ -8,29 +8,29 @@
 
     <Style Selector="TabControl">
             <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Margin" Value="7 0 0 0"></Setter>
+            <Setter Property="Margin" Value="7 0 0 0"/>
         </Style>
         <Style Selector="TabItem">
             <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Margin" Value="0 0 0 0"/>
+            <Setter Property="Margin" Value="0"/>
             <Setter Property="Width" Value="170"/>
             <Setter Property="Height" Value="60"/>
         </Style>
         <Style Selector="TabItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="#E5F3FB"/>
-            <Setter Property="Margin" Value="0 0 0 0"/>
+            <Setter Property="Margin" Value="0"/>
             <Setter Property="Width" Value="170"/>
             <Setter Property="Height" Value="60"/>
         </Style>
 
         <Style Selector="TabItem:focus">
             <Setter Property="Background" Value="#E5F3FB"/>
-            <Setter Property="Margin" Value="0 0 0 0"/>
+            <Setter Property="Margin" Value="0"/>
             <Setter Property="Width" Value="170"/>
             <Setter Property="Height" Value="60"/>
         </Style>
         <Style Selector="TabItem:focus /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Margin" Value="0 0 0 0"/>
+            <Setter Property="Margin" Value="0"/>
             <Setter Property="Background" Value="#E5F3FB"/>
             <Setter Property="Width" Value="170"/>
             <Setter Property="Height" Value="60"/>
@@ -38,13 +38,13 @@
 
         <Style Selector="TabItem:selected">
             <Setter Property="Background" Value="#CDE8FF"/>
-            <Setter Property="Margin" Value="0 0 0 0"/>
+            <Setter Property="Margin" Value="0"/>
             <Setter Property="Width" Value="170"/>
             <Setter Property="Height" Value="60"/>
         </Style>
         <Style Selector="TabItem:selected /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="#CDE8FF"/>
-            <Setter Property="Margin" Value="0 0 0 0"/>
+            <Setter Property="Margin" Value="0"/>
             <Setter Property="Width" Value="170"/>
             <Setter Property="Height" Value="60"/>
         </Style>

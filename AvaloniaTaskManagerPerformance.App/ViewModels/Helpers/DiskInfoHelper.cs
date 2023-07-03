@@ -1,6 +1,7 @@
 using System;
 using System.Management;
 using System.Text;
+using System.Threading.Tasks;
 using AvaloniaTaskManagerPerformance.App.Models;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
@@ -12,19 +13,22 @@ public class DiskInfoHelper
     public double Capacity { get; set; }
     public string Model { get; set; }
     
+    public int DiskActiveTime { get; set; }
+    
     public string DiskLetters { get; set; }
-    
-    
+
+    private const string instanceName = "0 C: D:";
     WqlObjectQuery diskDriveLogicalDiskObjectQuery = new ("SELECT * FROM Win32_LogicalDisk");
     ManagementScope scope = new (@"\\.\root\microsoft\windows\storage");
     ManagementObjectSearcher mediaType = new ("SELECT * FROM MSFT_PhysicalDisk");
     ManagementObjectSearcher allPartitionsSize = new("SELECT * FROM MSFT_Partition");
     WqlObjectQuery diskDriveObjectQuery = new ("SELECT * FROM Win32_DiskDrive");
-        
-    
+    WqlObjectQuery diskActiveTimeQuery = new ($"SELECT * FROM Win32_PerfFormattedData_PerfDisk_LogicalDisk WHERE Name = '{instanceName}'");
 
     public void GetDiskInfo()
     {
+        //DiskActiveTime = GetDiskActiveTime();
+
 
     }
 
@@ -96,6 +100,18 @@ public class DiskInfoHelper
         {
             result = o["Model"].ToString();
         }
+        return result;
+    }
+
+    private int GetDiskActiveTime()
+    {
+        var result = 0;
+        using var res = new ManagementObjectSearcher(diskActiveTimeQuery);
+        foreach (var mbo in res.Get())
+        {
+            result = 100 - Convert.ToInt32(mbo["PercentIdleTime"]);
+        }
+
         return result;
     }
     
