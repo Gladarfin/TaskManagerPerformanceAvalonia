@@ -17,6 +17,7 @@ public partial class MemoryViewModel  : ObservableObject
     #region Properties
     
     [ObservableProperty] private List<ISeries> _series;
+    [ObservableProperty] private List<ISeries> _seriesPreview;
     [ObservableProperty] private float _installedMemory;
     [ObservableProperty] private float _totalVisibleMemory;
     [ObservableProperty] private float _memoryInUse;
@@ -102,24 +103,12 @@ public partial class MemoryViewModel  : ObservableObject
             //slightly different from TM
             CachedMemory = _mih.Cached;
             MemoryInfoPreview = $"{MemoryInUse:F1}/{TotalVisibleMemory:F1} ({MemoryInUse * 100 / TotalVisibleMemory:F0} %)";
-        };
-
-        
-        Task.Run(GetNextMemoryLoadTrackingValue);
-        timer.Start();
-    }
-
-    private async Task GetNextMemoryLoadTrackingValue()
-    {
-        while (true)
-        {
             RemoveFirstMemoryLoadValue();
             AddNextMemoryLoadValue();
             UpdateSeriesValues();
-            await Task.Delay(1000);
-        }
+        };
+        timer.Start();
     }
-
     private void RemoveFirstMemoryLoadValue()
     {
         _observableValues.RemoveAt(0);
@@ -141,7 +130,7 @@ public partial class MemoryViewModel  : ObservableObject
             new SKColor(244, 244, 244), 
             new SKColor(139, 18, 174), 
             _observableValues);
-        Charts.SeriesPreview = SeriesHelper.SetSeriesValues(
+        SeriesPreview = SeriesHelper.SetSeriesValues(
             new SKColor(244, 244, 244), 
             new SKColor(139, 18, 174),
             _observableValues);

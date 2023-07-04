@@ -47,7 +47,7 @@
                  <Grid ColumnDefinitions="Auto, *">
                      <Border Grid.Column="0" BorderThickness="1" BorderBrush="#8B12AE" Margin="9">
                          <lvc:CartesianChart Focusable="False" Width="60" Height="40"
-                                             Series="{Binding MemoryVM.Charts.SeriesPreview}"
+                                             Series="{Binding MemoryVM.SeriesPreview}"
 
                                              XAxes="{Binding MemoryVM.Charts.XAxis}"
                                              YAxes="{Binding MemoryVM.Charts.YAxis}"
@@ -69,16 +69,17 @@
                  <Grid ColumnDefinitions="Auto, *">
                      <Border Grid.Column="0" BorderThickness="1" BorderBrush="#4DA70C" Margin="9">
                          <lvc:CartesianChart Focusable="False" Width="60" Height="40"
-                                             Series="{Binding DiskVM.Charts.SeriesPreview}"
+                                             Series="{Binding DiskVM.SeriesPreview}"
 
                                              XAxes="{Binding DiskVM.Charts.XAxis}"
                                              YAxes="{Binding DiskVM.Charts.YAxis}"
                                              TooltipPosition="Hidden"
                                              Background="#FFFFFF"/>
                      </Border>
-                     <Grid Grid.Column="1" RowDefinitions="Auto, Auto" ColumnDefinitions="Auto, Auto">
-                         <TextBlock Grid.Row="0" Grid.Column="0" FontSize="12" Text="{Binding DiskVM.DiskLabel}" Margin="0 10 10 0"/>
-                         <TextBlock Grid.Row="1" Grid.Column="0" FontSize="12" Text="{Binding DiskVM.DiskTypeLabel}" Margin="0 0 10 0"/>
+                     <Grid Grid.Column="1" RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="Auto, Auto">
+                         <TextBlock Grid.Row="0" Grid.Column="0" FontSize="12" Text="{Binding DiskVM.DiskLabel}" Margin="0 5 10 0"/>
+                         <TextBlock Grid.Row="1" Grid.Column="0" FontSize="12" Text="{Binding DiskVM.DiskType}" Margin="0 0 10 0"/>
+                         <TextBlock Grid.Row="2" Grid.Column="0" FontSize="12" Text="{Binding DiskVM.DiskActiveTime}" Margin="0 0 10 0"/>
                      </Grid>
                  </Grid>
              </TabItem.Header>
@@ -91,7 +92,7 @@
                  <Grid ColumnDefinitions="Auto, *">
                      <Border Grid.Column="0" BorderThickness="1" BorderBrush="#A94F01" Margin="9">
                          <lvc:CartesianChart Focusable="False" Width="60" Height="40"
-                                             Series="{Binding WiFiVM.Charts.SeriesPreview}"
+                                             Series="{Binding WiFiVM.SeriesPreview}"
 
                                              XAxes="{Binding WiFiVM.Charts.XAxis}"
                                              YAxes="{Binding WiFiVM.Charts.YAxis}"

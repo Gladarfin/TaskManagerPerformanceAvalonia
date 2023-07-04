@@ -16,6 +16,7 @@ public partial class WiFiViewModel : ObservableObject
     #region Properties
 
     [ObservableProperty] private List<ISeries> _series;
+    [ObservableProperty] private List<ISeries> _seriesPreview;
     
 
     public Charts Charts { get; } = new();
@@ -107,7 +108,7 @@ public partial class WiFiViewModel : ObservableObject
                 new SKColor(252, 243, 235), 
                 new SKColor(169, 79, 1), 
                 _observableValues);
-            Charts.SeriesPreview = SeriesHelper.SetSeriesValues(
+            SeriesPreview = SeriesHelper.SetSeriesValues(
                 new SKColor(252, 243, 235), 
                 new SKColor(169, 79, 1),
                 _observableValues);
