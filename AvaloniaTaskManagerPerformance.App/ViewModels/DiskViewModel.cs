@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Management;
 using System.Text;
-using Avalonia.Media.Transformation;
 using Avalonia.Threading;
 using AvaloniaTaskManagerPerformance.App.Models;
 using AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
-using LiveChartsCore.SkiaSharpView.Painting.Effects;
 using SkiaSharp;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels;
@@ -91,7 +87,7 @@ public partial class DiskViewModel : ObservableObject
             _observableValues.Add(new ObservablePoint(i, -1));
         }
         
-        GetDiskConstValues();
+        AssignDiskConstValues();
         StartDiskMeasuring();
     }
     
@@ -119,7 +115,7 @@ public partial class DiskViewModel : ObservableObject
         timer.Start();
     }
 
-    private void GetDiskConstValues()
+    private void AssignDiskConstValues()
     {
         var diskLetters = GetDiskLetters();
         DiskLabel = $"Disk 0 ({diskLetters})";

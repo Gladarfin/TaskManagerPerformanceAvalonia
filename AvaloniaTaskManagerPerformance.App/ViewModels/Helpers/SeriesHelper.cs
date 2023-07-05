@@ -3,6 +3,7 @@ using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
+using LiveChartsCore.SkiaSharpView.Painting.Effects;
 using SkiaSharp;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
@@ -23,5 +24,34 @@ public class SeriesHelper
                 LineSmoothness = 0
             }
         };
+    }
+    
+    public List<ISeries> SetMultiplySeriesValues(SKColor fillColor, SKColor strokeColor, List<ObservablePoint> series1Values,List<ObservablePoint> series2Values, DashEffect effect)
+    {
+            return new List<ISeries>
+            {
+                new LineSeries<ObservablePoint>
+                {
+                    Fill = new SolidColorPaint(fillColor),
+                    Stroke = new SolidColorPaint(strokeColor) { StrokeThickness = 1 },
+                    GeometryFill = null,
+                    GeometryStroke = null,
+                    LineSmoothness = 0,
+                    Values = series1Values
+                },
+                new LineSeries<ObservablePoint>
+                {
+                    Fill = null,
+                    Stroke = new SolidColorPaint(strokeColor)
+                    {
+                        StrokeThickness = 1,
+                        PathEffect = effect
+                    },
+                    GeometryFill = null,
+                    GeometryStroke = null,
+                    LineSmoothness = 0,
+                    Values = series2Values
+                }
+            };
     }
 }

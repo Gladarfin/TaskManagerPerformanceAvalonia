@@ -1,5 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using AvaloniaTaskManagerPerformance.App.Models;
@@ -7,6 +13,10 @@ using AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using LiveChartsCore.SkiaSharpView.Painting.Effects;
+using Microsoft.VisualBasic;
 using SkiaSharp;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels;
@@ -14,25 +24,41 @@ namespace AvaloniaTaskManagerPerformance.App.ViewModels;
 public partial class WiFiViewModel : ObservableObject
 {
     #region Properties
-
-    [ObservableProperty] private List<ISeries> _series;
-    [ObservableProperty] private List<ISeries> _seriesPreview;
     
+    [ObservableProperty] private string _send;
+    [ObservableProperty] private string _receive;
+    [ObservableProperty] private string _sendAndReceive;
+    [ObservableProperty] private string _ssid;
+    [ObservableProperty] private string _connectionType;
+    [ObservableProperty] private string _ipv4;
+    [ObservableProperty] private string _ipv6;
 
+    [ObservableProperty] private List<ISeries> _multiplySeries;
+    [ObservableProperty] private List<ISeries> _multiplySeriesPreview;
     public Charts Charts { get; } = new();
 
     #endregion
     
-    private readonly List<ObservablePoint> _observableValues;
+    private readonly List<ObservablePoint> _receiveValues;
+    private readonly List<ObservablePoint> _sendValues;
+    private readonly object _dataLock = new object();
     
-    
+    //Maybe this isn't right way to get Network values
+    private static PerformanceCounter _dataSentCounter;
+    private static PerformanceCounter _dataReceivedCounter;
+    private string _networkCard = "";
+    private float _sendKbytes;
+    private float _receiveKbytes;
+    private const int Index = 62;
+    private readonly DashEffect _effect = new(new float[]{ 3, 2 });
     private static SeriesHelper SeriesHelper { get; } = new();
     
     #region Labels
 
     [ObservableProperty] private string _wiFiLabel = "Wi-Fi";
-    [ObservableProperty] private string _wiFiDriverLabel = "Driver Placeholder";
-    [ObservableProperty] private string _wiFiTypeLabel = "Беспроводная сеть";
+    [ObservableProperty] private string _wiFiDriverLabel = "";
+    [ObservableProperty] private string _wiFiTypeLabel = "";
+    [ObservableProperty] private string _wiFiDnsName = "";
     [ObservableProperty] private string _wiFiThroughputLabel = "Throughput";
     [ObservableProperty] private string _wiFiMaxThroughputLabel = "100 Kbps";
     [ObservableProperty] private string _maxTime = "60 seconds";
@@ -50,67 +76,144 @@ public partial class WiFiViewModel : ObservableObject
 
     public WiFiViewModel()
     {
-        _observableValues = new List<ObservablePoint>();
-            
+        _sendValues = new List<ObservablePoint>();
+        _receiveValues = new List<ObservablePoint>();
+
         for (var i = 0; i < 62; i++)
         {
-            _observableValues.Add(new ObservablePoint(i, -1));
+            _sendValues.Add(new ObservablePoint(i, -1));
+            _receiveValues.Add(new ObservablePoint(i, -1));
         }
         
-        StartDiskMeasuring();
+        GetNetworkCard();
+        AssignPerformanceCounter();
+        AssignWiFiConstValues();
+        StartWiFiMeasuring();
     }
+
+    private void GetNetworkCard()
+    {
+        var category = new PerformanceCounterCategory("Network Interface");
+        var instanceNames = category.GetInstanceNames();
+
+        foreach (var name in instanceNames)
+        {
+            _networkCard = name;
+        }
+    }
+
+    private void AssignPerformanceCounter()
+    {
+        _dataSentCounter = new ("Network Interface", "Bytes Sent/sec", _networkCard);   
+        _dataReceivedCounter = new PerformanceCounter("Network Interface", "Bytes Received/sec", _networkCard);
+    }
+
+    private void AssignWiFiConstValues()
+    {
+        //I don't know why, but I can't get Name from the process even if I change cultureInfo (it's in Cyrillic on my laptop).
+        //But I can get it in the console application, so maybe it's Avalonia. I don't know. It's not a big deal, because I need
+        //this for the DNS name anyway.
+        var adapter = NetworkInterface.GetAllNetworkInterfaces()
+            .Where(x => x.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 && x.OperationalStatus == OperationalStatus.Up)
+            .FirstOrDefault();
         
-        private void StartDiskMeasuring()
-        {
+        var strHostName = Dns.GetHostName(); ;
+        var ipEntry = Dns.GetHostEntry(strHostName);
+        var addr = ipEntry.AddressList;
 
-            var timer = new DispatcherTimer
+        Ipv6 = addr[0].ToString();
+        Ipv4 = addr[1].ToString();
+        
+        var p = new Process();
+        p.StartInfo.FileName = "netsh.exe";
+        p.StartInfo.Arguments = "wlan show interfaces";
+        p.StartInfo.UseShellExecute = false;
+        p.StartInfo.RedirectStandardOutput = true;
+        p.Start();
+        var s = p.StandardOutput.ReadToEnd();
+
+        WiFiTypeLabel = adapter.Name;
+        WiFiDnsName = adapter.GetIPProperties().DnsSuffix;
+        
+
+        var description = s[s.IndexOf("Description")..];
+        var nextIndex = description.IndexOf(":") + 2;
+        WiFiDriverLabel = description.Substring(nextIndex, description.IndexOf(Environment.NewLine) - nextIndex).Trim();
+        
+
+        var ssid = s[s.IndexOf("SSID")..];
+        nextIndex = ssid.IndexOf(":") + 2;
+        Ssid = ssid.Substring(nextIndex, ssid.IndexOf(Environment.NewLine) - nextIndex).Trim();
+
+        var radioType = s[s.IndexOf("Radio type")..];
+        nextIndex = radioType.IndexOf(":") + 2;
+        ConnectionType = radioType.Substring(nextIndex, radioType.IndexOf(Environment.NewLine) - nextIndex).Trim();
+    }
+
+    private void StartWiFiMeasuring()
+    {
+        var timer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1)
+        };
+
+        timer.Tick += (sender, e) =>
+        {
+            lock (_dataLock)
             {
-                Interval = TimeSpan.FromSeconds(1)
-            };
-            
-            timer.Tick += (sender, e) =>
-            {
-                
-            };
-            
-            Task.Run(GetNextWiFiLoadTrackingValue);
-            timer.Start();
+                _sendKbytes = 8 * _dataSentCounter.NextValue() / 1000;
+                _receiveKbytes = 8 * _dataReceivedCounter.NextValue() / 1000;
+            }
+
+            RemoveFirstWiFiLoadValue();
+            AddNextWiFiLoadValue();
+            UpdateSeriesValues();
+        };
+        timer.Start();
+    }
+
+    private void RemoveFirstWiFiLoadValue()
+    {
+        _receiveValues.RemoveAt(0);
+        _sendValues.RemoveAt(0);
+
+        foreach (var point in _receiveValues)
+        {
+            point.X--;
         }
 
-        private async Task GetNextWiFiLoadTrackingValue()
+        foreach (var point in _sendValues)
         {
-            while (true)
-            {
-                RemoveFirstWiFiLoadValue();
-                AddNextWiFiLoadValue();
-                UpdateSeriesValues();
-                await Task.Delay(1000);
-            }
+            point.X--;
         }
+    }
+
+    private void AddNextWiFiLoadValue()
+    {
+        lock (_dataLock)
+        {
+            Send = _sendKbytes > 1001 ? $"{ _sendKbytes / 1000:F1} Mbps" : $"{_sendKbytes:F1} Kbps";
+            Receive = _receiveKbytes > 1001 ? $"{ _receiveKbytes / 1000:F1} Mbps" : $"{_receiveKbytes:F1} Kbps";
+            SendAndReceive = $"S: {Send[..Send.IndexOf(" ")]} R: {Receive}";
+            _receiveValues.Add(new ObservablePoint(Index, (int)_receiveKbytes));
+            _sendValues.Add(new ObservablePoint(Index,(int)_sendKbytes));
+        }
+        
+    }
     
-        private void RemoveFirstWiFiLoadValue()
-        {
-            _observableValues.RemoveAt(0);
-            foreach (var elem in _observableValues)
-            {
-                elem.X--;
-            }
-        }
-    
-        private void AddNextWiFiLoadValue()
-        {
-            
-        }
-    
-        private void UpdateSeriesValues()
-        {
-            Series = SeriesHelper.SetSeriesValues(
-                new SKColor(252, 243, 235), 
-                new SKColor(169, 79, 1), 
-                _observableValues);
-            SeriesPreview = SeriesHelper.SetSeriesValues(
-                new SKColor(252, 243, 235), 
-                new SKColor(169, 79, 1),
-                _observableValues);
-        }
+    private void UpdateSeriesValues()
+    {
+        MultiplySeries = SeriesHelper.SetMultiplySeriesValues(
+            new SKColor(252, 243, 235),
+            new SKColor(167, 79, 1), 
+            _receiveValues, 
+            _sendValues, 
+            _effect);
+        MultiplySeriesPreview = SeriesHelper.SetMultiplySeriesValues(
+            new SKColor(252, 243, 235),
+            new SKColor(167, 79, 1), 
+            _receiveValues, 
+            _sendValues, 
+            _effect);
+    }
 }
