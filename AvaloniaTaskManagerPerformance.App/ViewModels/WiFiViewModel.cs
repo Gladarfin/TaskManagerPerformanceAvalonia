@@ -37,14 +37,8 @@ public partial class WiFiViewModel : ObservableObject
     
     private readonly List<ObservablePoint> _receiveValues;
     private readonly List<ObservablePoint> _sendValues;
-    private readonly object _dataLock = new object();
-
-    //Maybe this isn't right way to get Network values
-    private static PerformanceCounter _dataSentCounter;
-    private static PerformanceCounter _dataReceivedCounter;
-    private string _networkCard = "";
-    private float _sendKbytes;
-    private float _receiveKbytes;
+    
+    private static WiFiInfoHelper WiFiHelper { get; set; }
     private const int Index = 62;
     private readonly DashEffect _effect = new(new float[]{ 3, 2 });
     private static SeriesHelper SeriesHelper { get; } = new();
@@ -92,69 +86,20 @@ public partial class WiFiViewModel : ObservableObject
             }
         };
 
-        GetNetworkCard();
-        AssignPerformanceCounter();
-        AssignWiFiConstValues();
+        WiFiHelper = new WiFiInfoHelper();
+        AssignConstValues();
         StartWiFiMeasuring();
     }
 
-    private void GetNetworkCard()
+    private void AssignConstValues()
     {
-        var category = new PerformanceCounterCategory("Network Interface");
-        var instanceNames = category.GetInstanceNames();
-
-        foreach (var name in instanceNames)
-        {
-            _networkCard = name;
-        }
-    }
-
-    private void AssignPerformanceCounter()
-    {
-        _dataSentCounter = new ("Network Interface", "Bytes Sent/sec", _networkCard);   
-        _dataReceivedCounter = new PerformanceCounter("Network Interface", "Bytes Received/sec", _networkCard);
-    }
-
-    private void AssignWiFiConstValues()
-    {
-        //I don't know why, but I can't get Name from the process even if I change cultureInfo (it's in Cyrillic on my laptop).
-        //But I can get it in the console application, so maybe it's Avalonia. I don't know. It's not a big deal, because I need
-        //this for the DNS name anyway.
-        var adapter = NetworkInterface.GetAllNetworkInterfaces()
-            .Where(x => x.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 && x.OperationalStatus == OperationalStatus.Up)
-            .FirstOrDefault();
-        
-        var strHostName = Dns.GetHostName(); ;
-        var ipEntry = Dns.GetHostEntry(strHostName);
-        var addr = ipEntry.AddressList;
-
-        Ipv6 = addr[0].ToString();
-        Ipv4 = addr[1].ToString();
-        
-        var p = new Process();
-        p.StartInfo.FileName = "netsh.exe";
-        p.StartInfo.Arguments = "wlan show interfaces";
-        p.StartInfo.UseShellExecute = false;
-        p.StartInfo.RedirectStandardOutput = true;
-        p.Start();
-        var s = p.StandardOutput.ReadToEnd();
-
-        WiFiTypeLabel = adapter.Name;
-        WiFiDnsName = adapter.GetIPProperties().DnsSuffix;
-        
-
-        var description = s[s.IndexOf("Description")..];
-        var nextIndex = description.IndexOf(":") + 2;
-        WiFiDriverLabel = description.Substring(nextIndex, description.IndexOf(Environment.NewLine) - nextIndex).Trim();
-        
-
-        var ssid = s[s.IndexOf("SSID")..];
-        nextIndex = ssid.IndexOf(":") + 2;
-        Ssid = ssid.Substring(nextIndex, ssid.IndexOf(Environment.NewLine) - nextIndex).Trim();
-
-        var radioType = s[s.IndexOf("Radio type")..];
-        nextIndex = radioType.IndexOf(":") + 2;
-        ConnectionType = radioType.Substring(nextIndex, radioType.IndexOf(Environment.NewLine) - nextIndex).Trim();
+        Ipv4 = WiFiHelper.Ipv4;
+        Ipv6 = WiFiHelper.Ipv6;
+        WiFiTypeLabel = WiFiHelper.WiFiType;
+        WiFiDnsName = WiFiHelper.WiFiDnsName;
+        WiFiDriverLabel = WiFiHelper.WiFiDriver;
+        Ssid = WiFiHelper.Ssid;
+        ConnectionType = WiFiHelper.ConnectionType;
     }
 
     private void StartWiFiMeasuring()
@@ -166,12 +111,7 @@ public partial class WiFiViewModel : ObservableObject
 
         timer.Tick += (sender, e) =>
         {
-            lock (_dataLock)
-            {
-                _sendKbytes =  8 * _dataSentCounter.NextValue() / 1000;
-                _receiveKbytes = 8 * _dataReceivedCounter.NextValue() / 1000;
-            }
-
+            WiFiHelper.GetWiFiValues();
             RemoveFirstWiFiLoadValue();
             AddNextWiFiLoadValue();
             UpdateSeriesValues();
@@ -184,28 +124,20 @@ public partial class WiFiViewModel : ObservableObject
         _receiveValues.RemoveAt(0);
         _sendValues.RemoveAt(0);
 
-        foreach (var point in _receiveValues)
+        for (var i = 0; i < _receiveValues.Count; i++)
         {
-            point.X--;
-        }
-
-        foreach (var point in _sendValues)
-        {
-            point.X--;
+            _receiveValues[i].X--;
+            _sendValues[i].X--;
         }
     }
 
     private void AddNextWiFiLoadValue()
     {
-        lock (_dataLock)
-        {
-            Send = _sendKbytes > 1001 ? $"{ _sendKbytes / 1000:F1} Mbps" : $"{_sendKbytes:F1} Kbps";
-            Receive = _receiveKbytes > 1001 ? $"{ _receiveKbytes / 1000:F1} Mbps" : $"{_receiveKbytes:F1} Kbps";
-            SendAndReceive = $"S: {Send[..Send.IndexOf(" ")]} R: {Receive}";
-            _receiveValues.Add(new ObservablePoint(Index, (int)_receiveKbytes));
-            _sendValues.Add(new ObservablePoint(Index,(int)_sendKbytes));
-        }
-        
+        Send = WiFiHelper.SendKbytes > 1001 ? $"{ WiFiHelper.SendKbytes / 1000:F1} Mbps" : $"{WiFiHelper.SendKbytes:F1} Kbps";
+        Receive = WiFiHelper.ReceiveKbytes > 1001 ? $"{ WiFiHelper.ReceiveKbytes / 1000:F1} Mbps" : $"{WiFiHelper.ReceiveKbytes:F1} Kbps";
+        SendAndReceive = $"S: {WiFiHelper.SendKbytes:F1} R: {WiFiHelper.ReceiveKbytes:F1} Kbps";
+        _receiveValues.Add(new ObservablePoint(Index, (int)WiFiHelper.ReceiveKbytes));
+        _sendValues.Add(new ObservablePoint(Index,(int)WiFiHelper.SendKbytes));
     }
     
     private void UpdateSeriesValues()

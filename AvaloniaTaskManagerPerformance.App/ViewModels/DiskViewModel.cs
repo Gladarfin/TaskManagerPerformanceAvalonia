@@ -34,9 +34,7 @@ public partial class DiskViewModel : ObservableObject
     [ObservableProperty] private float _diskAvgResponseTime;
     [ObservableProperty] private string _readSpeed;
     [ObservableProperty] private string _writeSpeed;
-    private int _activeTime;
-    private float _read;
-    private float _write;
+
     
     public Charts Charts { get; } = new();
 
@@ -48,7 +46,7 @@ public partial class DiskViewModel : ObservableObject
 
     private static SeriesHelper SeriesHelper { get; } = new();
     private const int Index = 62;
-    
+    private static DiskInfoHelper DiskHelper { get; set; }
     
     #region Labels
     
@@ -74,16 +72,7 @@ public partial class DiskViewModel : ObservableObject
     #endregion
 
                                                                                                                                      
-    private readonly WqlObjectQuery _diskDriveLogicalDiskObjectQuery = new ("SELECT * FROM Win32_LogicalDisk");                      
-    private readonly ManagementScope _scope = new (@"\\.\root\microsoft\windows\storage");                                           
-    private readonly ManagementObjectSearcher _mediaType = new ("SELECT * FROM MSFT_PhysicalDisk");                                  
-    private readonly ManagementObjectSearcher _allPartitionsSize = new("SELECT * FROM MSFT_Partition");                              
-    private readonly WqlObjectQuery _diskDriveObjectQuery = new ("SELECT * FROM Win32_DiskDrive");                                   
-    private readonly PerformanceCounter _idleDiskCounter = new("PhysicalDisk", "% Idle Time", "_Total");          
-    private readonly PerformanceCounter _avgDiskRead = new("PhysicalDisk", "Avg. Disk sec/Read", "_Total");        
-    private readonly PerformanceCounter _avgDiskWrite = new("PhysicalDisk", "Avg. Disk sec/Write", "_Total");
-    private readonly PerformanceCounter _readCounter = new("PhysicalDisk", "Disk Read Bytes/sec", "_Total");
-    private readonly PerformanceCounter _writeCounter = new("PhysicalDisk", "Disk Write Bytes/sec", "_Total");
+    
     private readonly DashEffect _effect = new(new float[]{ 3, 2 });
 
     public DiskViewModel()
@@ -108,10 +97,18 @@ public partial class DiskViewModel : ObservableObject
                 IsVisible = false
             }
         };
-        
-        
-        AssignDiskConstValues();
+        DiskHelper = new DiskInfoHelper();
+        AssignConstantValues();
         StartDiskMeasuring();
+    }
+
+    private void AssignConstantValues()
+    {
+        DiskLabel = DiskHelper.DiskLabel;
+        DiskCapacity  = DiskHelper.DiskCapacity;
+        DiskFormattedCapacity = DiskHelper.DiskFormattedCapacity;
+        DiskType = DiskHelper.DiskType;
+        DiskModel = DiskHelper.DiskModel;
     }
     
     private void StartDiskMeasuring()
@@ -120,96 +117,21 @@ public partial class DiskViewModel : ObservableObject
         {
             Interval = TimeSpan.FromSeconds(1)
         };
-        //first call returns 0, so we skip it - https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.performancecounter.nextvalue?view=dotnet-plat-ext-7.0&redirectedfrom=MSDN#System_Diagnostics_PerformanceCounter_NextValue
-        _idleDiskCounter.NextValue();
+        
         
         timer.Tick += (sender, e) =>
         {
-            _activeTime = 100 - (int)_idleDiskCounter.NextValue();
-            DiskAvgResponseTime = (_avgDiskRead.NextValue() + _avgDiskWrite.NextValue()) * 1000;
-            _read = _readCounter.NextValue() / 1000;
-            ReadSpeed = GetSpeedValue(_read);
-            _write = _writeCounter.NextValue() / 1000;
-            WriteSpeed = GetSpeedValue(_write);
-            RemoveFirstDiskLoadValue();
+            DiskHelper.GetDiskValues();
+            DiskAvgResponseTime = DiskHelper.DiskAvgResponseTime;
+            ReadSpeed = DiskHelper.ReadSpeed;
+            WriteSpeed = DiskHelper.WriteSpeed;
+            RemoveFirstDiskLoadValue(); 
             AddNextDiskLoadValue();
             UpdateSeriesValues();
         };
         timer.Start();
     }
 
-    private void AssignDiskConstValues()
-    {
-        var diskLetters = GetDiskLetters();
-        DiskLabel = $"Disk 0 ({diskLetters})";
-        DiskCapacity = ConvertFromBytesToGigabytes(GetDiskSizeWithHiddenPartitions());
-        DiskFormattedCapacity = DiskCapacity;
-        DiskType = GetDiskType();
-        DiskModel = GetDiskModel();
-    }
-
-    private string GetDiskLetters()
-    {
-        using var res = new ManagementObjectSearcher(_diskDriveLogicalDiskObjectQuery);
-        var sb = new StringBuilder();
-        foreach (var disk in res.Get())
-        {
-            sb.Append(disk["DeviceID"]);
-            sb.Append(' ');
-            //If we use a query from LogicalDisk to calculate the size, it will be different because it doesn't append hidden partitions.
-            //Capacity += (ulong)disk["Size"];
-        }
-
-        sb.Length--;
-        return sb.ToString();
-    }
-
-    private double GetDiskSizeWithHiddenPartitions()
-    {
-        _scope.Connect();
-        _allPartitionsSize.Scope = _scope;
-        var result = 0.0;
-
-        foreach(var part in _allPartitionsSize.Get())
-        {
-            result += (ulong)part["Size"];
-        }
-        
-        _allPartitionsSize.Dispose();
-        return result;
-    }
-
-    private string GetDiskType()
-    {
-        var result = "";
-        _scope.Connect();
-        _mediaType.Scope = _scope;
-        foreach (var queryObj in _mediaType.Get())
-        {
-            var val = Convert.ToInt16(queryObj["MediaType"]);
-            result = (val is > 2 and < 6 ? Enum.GetName(typeof(DiskTypeEnum), val) : "Unspecified") ?? string.Empty;
-        }
-        _mediaType.Dispose();
-
-        return result;
-    }
-
-    private static double ConvertFromBytesToGigabytes(double val)
-    {
-        return val / 1024 / 1024 / 1024;
-    }
-
-    private string GetDiskModel()
-    {
-        var result = "";
-        using var res = new ManagementObjectSearcher(_diskDriveObjectQuery);
-        foreach (var o in res.Get())
-        {
-            result = o["Model"].ToString();
-        }
-        return result;
-    }
-    
     private void RemoveFirstDiskLoadValue()
     {
         _observableValues.RemoveAt(0);
@@ -224,10 +146,10 @@ public partial class DiskViewModel : ObservableObject
     }
     private void AddNextDiskLoadValue()
     {
-        DiskActiveTime = $"{_activeTime}%";
-        _observableValues.Add(new ObservablePoint(Index, _activeTime));
-        _writeSpeedValues.Add(new ObservablePoint(Index, _write));
-        _readSpeedValues.Add(new ObservablePoint(Index, _read));
+        DiskActiveTime = $"{DiskHelper.ActiveTime}%";
+        _observableValues.Add(new ObservablePoint(Index, DiskHelper.ActiveTime));
+        _writeSpeedValues.Add(new ObservablePoint(Index, DiskHelper.Write));
+        _readSpeedValues.Add(new ObservablePoint(Index, DiskHelper.Read));
     }
 
     private void UpdateSeriesValues()
@@ -247,9 +169,5 @@ public partial class DiskViewModel : ObservableObject
             _writeSpeedValues,
             _effect);
     }
-
-    private string GetSpeedValue(float val)
-    {
-        return val > 1002 ? $"{val / 1000:F1} MB/s" : $"{val:F1} KB/s";  
-    }
+    
 }
