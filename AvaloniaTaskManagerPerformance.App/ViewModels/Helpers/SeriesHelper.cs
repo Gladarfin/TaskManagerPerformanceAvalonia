@@ -26,7 +26,7 @@ public class SeriesHelper
         };
     }
     
-    public List<ISeries> SetMultiplySeriesValues(SKColor fillColor, SKColor strokeColor, List<ObservablePoint> series1Values,List<ObservablePoint> series2Values, DashEffect effect)
+    public List<ISeries> SetMultiplySeriesValues(SKColor fillColor, SKColor strokeColor, List<ObservablePoint> seriesValues,List<ObservablePoint> seriesValuesWithPathEffect, DashEffect effect)
     {
             return new List<ISeries>
             {
@@ -37,7 +37,7 @@ public class SeriesHelper
                     GeometryFill = null,
                     GeometryStroke = null,
                     LineSmoothness = 0,
-                    Values = series1Values
+                    Values = seriesValues
                 },
                 new LineSeries<ObservablePoint>
                 {
@@ -50,7 +50,7 @@ public class SeriesHelper
                     GeometryFill = null,
                     GeometryStroke = null,
                     LineSmoothness = 0,
-                    Values = series2Values
+                    Values = seriesValuesWithPathEffect
                 }
             };
     }

@@ -33,18 +33,24 @@
                 <TextBlock Grid.Column="2" TextAlignment="Right" Margin="0 10 20 0" FontSize="10" Text="{Binding MinTime}"/>
             </Grid>
         </Grid>
-        <!--disk transfer rate. Maybe I'll return to it later.-->
-        <!-- <Grid Grid.Row="2" RowDefinitions="Auto, Auto, Auto"> -->
-        <!--     <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto"> -->
-        <!--         <TextBlock Grid.Column="0" Margin="20 10 0 0" FontSize="10" Text="{Binding DiskTransferRateLabel}"/> -->
-        <!--         <TextBlock Grid.Column="2" TextAlignment="Right" Margin="0 10 20 0" FontSize="10" Text="{Binding DiskMaxTransferRateLabel}"/> -->
-        <!--     </Grid> -->
-        <!--     <Rectangle Grid.Row="1" Margin="20 10 20 0" Height="52" Fill="Green"/> -->
-        <!--     <Grid Grid.Row="2" ColumnDefinitions="Auto, *, Auto"> -->
-        <!--         <TextBlock Grid.Column="0" Margin="20 10 0 0" FontSize="10" Text="{Binding MaxTime}"/> -->
-        <!--         <TextBlock Grid.Column="2" TextAlignment="Right" Margin="0 10 20 0" FontSize="10" Text="{Binding MinTime}"/> -->
-        <!--     </Grid> -->
-        <!-- </Grid> -->
+        <Grid Grid.Row="2" RowDefinitions="Auto, Auto, Auto">
+             <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto">
+                 <TextBlock Grid.Column="0" Margin="20 10 0 0" FontSize="10" Text="{Binding DiskTransferRateLabel}"/>
+                 <TextBlock Grid.Column="2" TextAlignment="Right" Margin="0 10 20 0" FontSize="10" Text="{Binding DiskMaxTransferRateLabel}"/>
+             </Grid>
+            <Border Grid.Row="1" BorderThickness="1" BorderBrush="#4DA70C" Margin="20 10 20 0" Height="70">
+                <lvc:CartesianChart Focusable="False" 
+                                    Series="{Binding SeriesWriteRead}"
+                                    XAxes="{Binding Charts.XAxis}"
+                                    YAxes="{Binding YAxisMultiplySeries}"
+                                    TooltipPosition="Hidden"
+                                    Background="#FFFFFF"/>
+            </Border>
+             <Grid Grid.Row="2" ColumnDefinitions="Auto, *, Auto">
+                 <TextBlock Grid.Column="0" Margin="20 10 0 0" FontSize="10" Text="{Binding MaxTime}"/>
+                 <TextBlock Grid.Column="2" TextAlignment="Right" Margin="0 10 20 0" FontSize="10" Text="{Binding MinTime}"/>
+             </Grid>
+         </Grid>
         <!--bottom part-->
         <Grid Grid.Row="3" ColumnDefinitions="Auto, Auto, *" Margin="0 0 0 30">
             <Grid Grid.Column="0" RowDefinitions="Auto, Auto, Auto">

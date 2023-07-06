@@ -96,7 +96,7 @@
                                              Series="{Binding WiFiVM.MultiplySeriesPreview}"
 
                                              XAxes="{Binding WiFiVM.Charts.XAxis}"
-                                             YAxes="{Binding WiFiVM.Charts.YAxis}"
+                                             YAxes="{Binding WiFiVM.YAxisMultiplySeries}"
                                              TooltipPosition="Hidden"
                                              Background="#FFFFFF"/>
                      </Border>

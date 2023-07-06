@@ -2,9 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="AvaloniaTaskManagerPerformance.App.Views.WiFiUserControl"
              xmlns:vm="using:AvaloniaTaskManagerPerformance.App.ViewModels"
-             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
-             xmlns:skiaSharpView="clr-namespace:LiveChartsCore.SkiaSharpView;assembly=LiveChartsCore.SkiaSharpView"
-             xmlns:defaults="clr-namespace:LiveChartsCore.Defaults;assembly=LiveChartsCore">
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia">
     <Design.DataContext>
         <vm:WiFiViewModel/>
     </Design.DataContext>
@@ -26,7 +24,7 @@
                                     Series="{Binding MultiplySeries}"
                                     AnimationsSpeed="00:00:00.500"
                                     XAxes="{Binding Charts.XAxis}" 
-                                    YAxes="{Binding Charts.YAxis}"
+                                    YAxes="{Binding YAxisMultiplySeries}"
                                     TooltipPosition="Hidden">
                 </lvc:CartesianChart>
             </Border>

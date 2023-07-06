@@ -9,6 +9,8 @@ using AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting.Effects;
 using SkiaSharp;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels;
@@ -19,6 +21,9 @@ public partial class DiskViewModel : ObservableObject
     
     [ObservableProperty] private List<ISeries> _series;
     [ObservableProperty] private List<ISeries> _seriesPreview;
+    [ObservableProperty] private List<ISeries> _seriesWriteRead;
+    [ObservableProperty] private static List<Axis> _yAxisMultiplySeries;
+    
 
     [ObservableProperty] private double _diskCapacity;
     [ObservableProperty] private double _diskFormattedCapacity;
@@ -38,6 +43,8 @@ public partial class DiskViewModel : ObservableObject
     #endregion
     
     private readonly List<ObservablePoint> _observableValues;
+    private readonly List<ObservablePoint> _writeSpeedValues;
+    private readonly List<ObservablePoint> _readSpeedValues;
 
     private static SeriesHelper SeriesHelper { get; } = new();
     private const int Index = 62;
@@ -77,15 +84,31 @@ public partial class DiskViewModel : ObservableObject
     private readonly PerformanceCounter _avgDiskWrite = new("PhysicalDisk", "Avg. Disk sec/Write", "_Total");
     private readonly PerformanceCounter _readCounter = new("PhysicalDisk", "Disk Read Bytes/sec", "_Total");
     private readonly PerformanceCounter _writeCounter = new("PhysicalDisk", "Disk Write Bytes/sec", "_Total");
-    
+    private readonly DashEffect _effect = new(new float[]{ 3, 2 });
 
     public DiskViewModel()
     {
         _observableValues = new List<ObservablePoint>();
+        _writeSpeedValues = new List<ObservablePoint>();
+        _readSpeedValues = new List<ObservablePoint>();
         for (var i = 0; i < 62; i++)
         {
             _observableValues.Add(new ObservablePoint(i, -1));
+            _readSpeedValues.Add(new ObservablePoint(i, -1));
+            _writeSpeedValues.Add(new ObservablePoint(i, -1));
         }
+        
+        YAxisMultiplySeries = new List<Axis>
+        {
+            new Axis
+            {
+                MaxLimit = 10000,
+                MinLimit = 0,
+                MinStep = 500,
+                IsVisible = false
+            }
+        };
+        
         
         AssignDiskConstValues();
         StartDiskMeasuring();
@@ -190,15 +213,21 @@ public partial class DiskViewModel : ObservableObject
     private void RemoveFirstDiskLoadValue()
     {
         _observableValues.RemoveAt(0);
-        foreach (var value in _observableValues)
+        _writeSpeedValues.RemoveAt(0);
+        _readSpeedValues.RemoveAt(0);
+        for (var i = 0; i < _observableValues.Count; i++)
         {
-            value.X--;
+            _observableValues[i].X--;
+            _writeSpeedValues[i].X--;
+            _readSpeedValues[i].X--;
         }
     }
     private void AddNextDiskLoadValue()
     {
         DiskActiveTime = $"{_activeTime}%";
         _observableValues.Add(new ObservablePoint(Index, _activeTime));
+        _writeSpeedValues.Add(new ObservablePoint(Index, _write));
+        _readSpeedValues.Add(new ObservablePoint(Index, _read));
     }
 
     private void UpdateSeriesValues()
@@ -211,10 +240,16 @@ public partial class DiskViewModel : ObservableObject
             new SKColor(239, 247, 233),
             new SKColor(77, 166, 12),
             _observableValues);
+        SeriesWriteRead = SeriesHelper.SetMultiplySeriesValues(
+            new SKColor(239, 247, 233),
+            new SKColor(77, 166, 12),
+            _readSpeedValues,
+            _writeSpeedValues,
+            _effect);
     }
 
     private string GetSpeedValue(float val)
     {
-        return val > 1032 ? $"{val / 1024:F1} MB/s" : $"{val:F1} KB/s";  
+        return val > 1002 ? $"{val / 1000:F1} MB/s" : $"{val:F1} KB/s";  
     }
 }

@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 using Avalonia.Threading;
 using AvaloniaTaskManagerPerformance.App.Models;
 using AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
@@ -14,9 +11,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
 using LiveChartsCore.SkiaSharpView.Painting.Effects;
-using Microsoft.VisualBasic;
 using SkiaSharp;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels;
@@ -35,6 +30,7 @@ public partial class WiFiViewModel : ObservableObject
 
     [ObservableProperty] private List<ISeries> _multiplySeries;
     [ObservableProperty] private List<ISeries> _multiplySeriesPreview;
+    [ObservableProperty] private static List<Axis> _yAxisMultiplySeries;
     public Charts Charts { get; } = new();
 
     #endregion
@@ -42,7 +38,7 @@ public partial class WiFiViewModel : ObservableObject
     private readonly List<ObservablePoint> _receiveValues;
     private readonly List<ObservablePoint> _sendValues;
     private readonly object _dataLock = new object();
-    
+
     //Maybe this isn't right way to get Network values
     private static PerformanceCounter _dataSentCounter;
     private static PerformanceCounter _dataReceivedCounter;
@@ -60,7 +56,7 @@ public partial class WiFiViewModel : ObservableObject
     [ObservableProperty] private string _wiFiTypeLabel = "";
     [ObservableProperty] private string _wiFiDnsName = "";
     [ObservableProperty] private string _wiFiThroughputLabel = "Throughput";
-    [ObservableProperty] private string _wiFiMaxThroughputLabel = "100 Kbps";
+    [ObservableProperty] private string _wiFiMaxThroughputLabel = "20 Mbps";
     [ObservableProperty] private string _maxTime = "60 seconds";
     [ObservableProperty] private string _minTime = "0";
     [ObservableProperty] private string _sendLabel = "Send";
@@ -85,6 +81,17 @@ public partial class WiFiViewModel : ObservableObject
             _receiveValues.Add(new ObservablePoint(i, -1));
         }
         
+        YAxisMultiplySeries = new List<Axis>
+        {
+            new Axis
+            {
+                MaxLimit = 20000,
+                MinLimit = 0,
+                MinStep = 10,
+                IsVisible = false
+            }
+        };
+
         GetNetworkCard();
         AssignPerformanceCounter();
         AssignWiFiConstValues();
@@ -161,7 +168,7 @@ public partial class WiFiViewModel : ObservableObject
         {
             lock (_dataLock)
             {
-                _sendKbytes = 8 * _dataSentCounter.NextValue() / 1000;
+                _sendKbytes =  8 * _dataSentCounter.NextValue() / 1000;
                 _receiveKbytes = 8 * _dataReceivedCounter.NextValue() / 1000;
             }
 
