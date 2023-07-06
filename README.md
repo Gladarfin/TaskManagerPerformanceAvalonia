@@ -12,5 +12,5 @@ I think I'll stop there.
 
 Known issues (possibilities for future updates):
 
-> didn't implement scaling for WiFi and Disk charts (for now, I just set the y-axis for them in code; this is why these charts are not the same as in Task Manager);
-> the values on the preview and main view are slightly different, but it's not a big difference, so for my purposes, it doesn't matter.
+* didn't implement scaling for WiFi and Disk charts (for now, I just set the y-axis for them in code; this is why these charts are not the same as in Task Manager);
+* the values on the preview and main view are slightly different, but it's not a big difference, so for my purposes, it doesn't matter.
