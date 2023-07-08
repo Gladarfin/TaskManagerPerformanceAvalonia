@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Management;
-using System.Text;
+using System.Runtime.Versioning;
 using Avalonia.Threading;
 using AvaloniaTaskManagerPerformance.App.Models;
 using AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
@@ -14,7 +12,7 @@ using LiveChartsCore.SkiaSharpView.Painting.Effects;
 using SkiaSharp;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels;
-
+[SupportedOSPlatform("windows")]
 public partial class DiskViewModel : ObservableObject
 {
     #region Properties

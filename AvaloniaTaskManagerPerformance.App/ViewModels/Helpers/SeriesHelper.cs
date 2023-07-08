@@ -26,7 +26,12 @@ public class SeriesHelper
         };
     }
     
-    public List<ISeries> SetMultiplySeriesValues(SKColor fillColor, SKColor strokeColor, List<ObservablePoint> seriesValues,List<ObservablePoint> seriesValuesWithPathEffect, DashEffect effect)
+    public List<ISeries> SetMultiplySeriesValues(
+        SKColor fillColor, 
+        SKColor strokeColor, 
+        List<ObservablePoint> seriesValues,
+        List<ObservablePoint> seriesValuesWithPathEffect, 
+        DashEffect effect)
     {
             return new List<ISeries>
             {

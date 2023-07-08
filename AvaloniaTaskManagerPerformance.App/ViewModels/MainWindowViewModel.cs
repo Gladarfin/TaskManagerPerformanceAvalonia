@@ -1,7 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Runtime.Versioning;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels
 {
+    [SupportedOSPlatform("windows")]
     public class MainWindowViewModel : ObservableObject
     {
         public CpuViewModel CpuVM { get; }

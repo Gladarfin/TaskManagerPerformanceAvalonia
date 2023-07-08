@@ -1,22 +1,23 @@
 using System;
 using System.Diagnostics;
 using System.Management;
+using System.Runtime.Versioning;
 using System.Text;
 using AvaloniaTaskManagerPerformance.App.Models;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
-
+[SupportedOSPlatform("windows")]
 public class DiskInfoHelper
 {
-    public string DiskLabel{ get; set; }
-    public double DiskCapacity { get; set; }
-    public double DiskFormattedCapacity{ get; set; }
-    public string DiskType{ get; set; }
-    public string DiskModel { get; set; }
-    public float DiskAvgResponseTime { get; set; }
-    public string ReadSpeed { get; set; }
-    public string WriteSpeed { get; set; }
-    public  int ActiveTime { get; set; }
+    public string DiskLabel{ get; private set; }
+    public double DiskCapacity { get; private set; }
+    public double DiskFormattedCapacity{ get; private set; }
+    public string DiskType{ get; private set; }
+    public string DiskModel { get; private set; }
+    public float DiskAvgResponseTime { get; private set; }
+    public string ReadSpeed { get; private set; }
+    public string WriteSpeed { get; private set; }
+    public  int ActiveTime { get; private set; }
     public float Read;
     public float Write;
 
@@ -71,7 +72,7 @@ public class DiskInfoHelper
         {
             result = o["Model"].ToString();
         }
-        return result;
+        return result ?? "";
     }
     
     private string GetSpeedValue(float val)

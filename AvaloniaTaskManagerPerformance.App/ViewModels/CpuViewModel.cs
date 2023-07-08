@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Management;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using AvaloniaTaskManagerPerformance.App.Models;
@@ -12,7 +13,7 @@ using LiveChartsCore.Defaults;
 using SkiaSharp;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels;
-
+[SupportedOSPlatform("windows")]
 public partial class CpuViewModel : ObservableObject
 {
     #region Properties
@@ -64,9 +65,9 @@ public partial class CpuViewModel : ObservableObject
     private static SeriesHelper SeriesHelper { get; } = new();
     
     private readonly PerformanceCounter _cpuLoad = new("Processor Information", "% Processor Utility", "_Total");
-    private readonly PerformanceCounter _threadsCount = new("System", "Threads");
-    private readonly PerformanceCounter _handlesCount = new("Process", "Handle Count", "_Total");
-    private static readonly PerformanceCounter _cpuPerformance = new ("Processor Information", "% Processor Performance", "_Total");
+    private static readonly PerformanceCounter ThreadsCount = new("System", "Threads");
+    private static readonly PerformanceCounter HandlesCount = new("Process", "Handle Count", "_Total");
+    private static readonly PerformanceCounter CpuPerformance = new ("Processor Information", "% Processor Performance", "_Total");
     public CpuViewModel()
     {
         _observableValues = new List<ObservablePoint>();
@@ -91,8 +92,8 @@ public partial class CpuViewModel : ObservableObject
         {
             Timer = TimeSpan.FromMilliseconds(Environment.TickCount & int.MaxValue).ToString(@"dd\:hh\:mm\:ss");
             Processes = Process.GetProcesses().Length;
-            Threads = (int)_threadsCount.NextValue();
-            Handles = (int)_handlesCount.NextValue();
+            Threads = (int)ThreadsCount.NextValue();
+            Handles = (int)HandlesCount.NextValue();
             tmpCpu = Math.Min((int)_cpuLoad.NextValue(), 100);
             RemoveFirstCpuLoadValue();
             AddNextCpuLoadValue(tmpCpu);
@@ -110,7 +111,7 @@ public partial class CpuViewModel : ObservableObject
         var procs = mgt.GetInstances();
         foreach (var item in procs)
         {
-            result.Name = item.Properties["Name"].Value.ToString();
+            result.Name = item.Properties["Name"].Value.ToString() ?? "";
             result.ThreadCount = (uint)item.Properties["ThreadCount"].Value;
             result.NumberOfCores = (uint)item.Properties["NumberOfCores"].Value;
             result.NumberOfLogicalProcessors = (uint)item.Properties["NumberOfLogicalProcessors"].Value;
@@ -182,7 +183,7 @@ public partial class CpuViewModel : ObservableObject
             await Task.Delay(1);
             break;
         }
-        CpuSpeed = maxSpeed * _cpuPerformance.NextValue() / 100;
+        CpuSpeed = maxSpeed * CpuPerformance.NextValue() / 100;
     }
 
 }

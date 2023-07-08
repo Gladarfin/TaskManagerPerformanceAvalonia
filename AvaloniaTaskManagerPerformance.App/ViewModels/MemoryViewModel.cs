@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Runtime.Versioning;
 using Avalonia.Threading;
 using AvaloniaTaskManagerPerformance.App.Models;
 using AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
-using LiveChartsCore.SkiaSharpView;
 using SkiaSharp;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels;
-
+[SupportedOSPlatform("windows")]
 public partial class MemoryViewModel  : ObservableObject
 {
     #region Properties

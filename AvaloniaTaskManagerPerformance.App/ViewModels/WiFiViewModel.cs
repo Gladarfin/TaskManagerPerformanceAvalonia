@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
+using System.Runtime.Versioning;
 using Avalonia.Threading;
 using AvaloniaTaskManagerPerformance.App.Models;
 using AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
@@ -15,7 +12,7 @@ using LiveChartsCore.SkiaSharpView.Painting.Effects;
 using SkiaSharp;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels;
-
+[SupportedOSPlatform("windows")]
 public partial class WiFiViewModel : ObservableObject
 {
     #region Properties
@@ -68,7 +65,7 @@ public partial class WiFiViewModel : ObservableObject
     {
         _sendValues = new List<ObservablePoint>();
         _receiveValues = new List<ObservablePoint>();
-
+        
         for (var i = 0; i < 62; i++)
         {
             _sendValues.Add(new ObservablePoint(i, -1));

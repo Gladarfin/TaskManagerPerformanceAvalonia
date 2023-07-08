@@ -1,3 +1,4 @@
+using System.Runtime.Versioning;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -6,6 +7,7 @@ using AvaloniaTaskManagerPerformance.App.Views;
 
 namespace AvaloniaTaskManagerPerformance.App
 {
+    [SupportedOSPlatform("windows")]
     public partial class App : Application
     {
         public override void Initialize()

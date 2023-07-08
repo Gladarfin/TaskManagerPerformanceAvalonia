@@ -3,9 +3,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Runtime.Versioning;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
-
+[SupportedOSPlatform("windows")]
 public class WiFiInfoHelper
 {
     //Maybe this isn't right way to get Network values
@@ -13,15 +14,15 @@ public class WiFiInfoHelper
     private static PerformanceCounter _dataReceivedCounter;
 
     private string _networkCard;
-    public string Ipv4 { get; set; }
-    public string Ipv6 { get; set; }
-    public string WiFiType { get; set; }
-    public string WiFiDnsName { get; set; }
-    public string WiFiDriver { get; set; }
-    public string Ssid { get; set; }
-    public string ConnectionType { get; set; }
-    public float SendKbytes { get; set; }
-    public float ReceiveKbytes { get; set; }
+    public string Ipv4 { get; private set; }
+    public string Ipv6 { get; private set; }
+    public string WiFiType { get; private set; }
+    public string WiFiDnsName { get; private set; }
+    public string WiFiDriver { get; private set; }
+    public string Ssid { get; private set; }
+    public string ConnectionType { get; private set; }
+    public float SendKbytes { get; private set; }
+    public float ReceiveKbytes { get; private set; }
 
     public WiFiInfoHelper()
     {
@@ -40,7 +41,6 @@ public class WiFiInfoHelper
             _networkCard = name;
         }
     }
-    
     private void AssignPerformanceCounter()
     {
         _dataSentCounter = new ("Network Interface", "Bytes Sent/sec", _networkCard);   
@@ -54,9 +54,12 @@ public class WiFiInfoHelper
         //I don't know why, but I can't get Name from the process even if I change cultureInfo (it's in Cyrillic on my laptop).
         //But I can get it in the console application, so maybe it's Avalonia. I don't know. It's not a big deal, because I need
         //this for the DNS name anyway.
-        var adapter = NetworkInterface.GetAllNetworkInterfaces()
-            .Where(x => x.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 && x.OperationalStatus == OperationalStatus.Up)
-            .FirstOrDefault();
+        var adapter = NetworkInterface
+            .GetAllNetworkInterfaces()
+            .FirstOrDefault(x => x is { 
+                NetworkInterfaceType: NetworkInterfaceType.Wireless80211,
+                OperationalStatus: OperationalStatus.Up 
+            });
         
         var strHostName = Dns.GetHostName(); ;
         var ipEntry = Dns.GetHostEntry(strHostName);
@@ -77,18 +80,18 @@ public class WiFiInfoHelper
         WiFiDnsName = adapter.GetIPProperties().DnsSuffix;
         
 
-        var description = s[s.IndexOf("Description")..];
-        var nextIndex = description.IndexOf(":") + 2;
-        WiFiDriver = description.Substring(nextIndex, description.IndexOf(Environment.NewLine) - nextIndex).Trim();
+        var description = s[s.IndexOf("Description", StringComparison.Ordinal)..];
+        var nextIndex = description.IndexOf(":", StringComparison.Ordinal) + 2;
+        WiFiDriver = description.Substring(nextIndex, description.IndexOf(Environment.NewLine, StringComparison.Ordinal) - nextIndex).Trim();
         
 
-        var ssid = s[s.IndexOf("SSID")..];
-        nextIndex = ssid.IndexOf(":") + 2;
-        Ssid = ssid.Substring(nextIndex, ssid.IndexOf(Environment.NewLine) - nextIndex).Trim();
+        var ssid = s[s.IndexOf("SSID", StringComparison.Ordinal)..];
+        nextIndex = ssid.IndexOf(":", StringComparison.Ordinal) + 2;
+        Ssid = ssid.Substring(nextIndex, ssid.IndexOf(Environment.NewLine, StringComparison.Ordinal) - nextIndex).Trim();
 
-        var radioType = s[s.IndexOf("Radio type")..];
-        nextIndex = radioType.IndexOf(":") + 2;
-        ConnectionType = radioType.Substring(nextIndex, radioType.IndexOf(Environment.NewLine) - nextIndex).Trim();
+        var radioType = s[s.IndexOf("Radio type", StringComparison.Ordinal)..];
+        nextIndex = radioType.IndexOf(":", StringComparison.Ordinal) + 2;
+        ConnectionType = radioType.Substring(nextIndex, radioType.IndexOf(Environment.NewLine, StringComparison.Ordinal) - nextIndex).Trim();
     }
 
     public void GetWiFiValues()

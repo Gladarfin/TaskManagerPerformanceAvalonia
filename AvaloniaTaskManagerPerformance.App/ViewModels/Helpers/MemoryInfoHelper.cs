@@ -2,22 +2,23 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
+using System.Runtime.Versioning;
 using AvaloniaTaskManagerPerformance.App.Models;
 
 namespace AvaloniaTaskManagerPerformance.App.ViewModels.Helpers;
-
+[SupportedOSPlatform("windows")]
 public class MemoryInfoHelper
 {
-    public float TotalVisibleMemory{ get; set; }
-    public float MemoryInUse{ get; set; }
-    public string FreePhysicalMemory{ get; set; }
-    public uint PagedPool{ get; set; }
-    public uint NonPagedPool{ get; set; }
-    public string CommittedMemory{ get; set; }
-    public float TotalVirtualMemory{ get; set; }
-    public float FreeVirtualMemory{ get; set; }
-    public float VirtualMemoryInUse{ get; set; }
-    public string Cached { get; set; }
+    public float TotalVisibleMemory{ get; private set; }
+    public float MemoryInUse{ get; private set; }
+    public string FreePhysicalMemory{ get; private set; }
+    public uint PagedPool{ get; private  set; }
+    public uint NonPagedPool{ get; private set; }
+    public string CommittedMemory{ get; private set; }
+    public float TotalVirtualMemory{ get; private set; }
+    public float FreeVirtualMemory{ get; private set; }
+    public float VirtualMemoryInUse{ get; private set; }
+    public string Cached { get; private set; }
 
     private float _freePhysMemory;
     private float _cachedMemory;
@@ -44,7 +45,7 @@ public class MemoryInfoHelper
         searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory");
         foreach (var obj in searcher.Get())
         {
-            if (obj["DeviceLocator"] != null && obj["DeviceLocator"].ToString() != "")
+            if (obj["DeviceLocator"].ToString() != "")
             {
                 usedSlots++;
             }
@@ -64,19 +65,19 @@ public class MemoryInfoHelper
     public string GetFormFactor()
     {
         var formFactor = "";
-        foreach (ManagementObject obj in PhysicalMemorySearcher.Get())
+        foreach (var obj in PhysicalMemorySearcher.Get())
         {
             formFactor = Enum.GetName(typeof(FormFactorEnum), obj["FormFactor"]);
             break;
         }
 
-        return formFactor;
+        return formFactor ?? "";
     }
 
     public int GetMemorySpeed()
     {
         var memorySpeed = 0;
-        foreach (ManagementObject obj in PhysicalMemorySearcher.Get())
+        foreach (var obj in PhysicalMemorySearcher.Get())
         {
             memorySpeed = Convert.ToInt32(obj["Speed"]);
             break;
