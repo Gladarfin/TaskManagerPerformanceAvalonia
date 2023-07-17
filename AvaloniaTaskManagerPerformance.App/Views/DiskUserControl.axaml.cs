@@ -13,7 +13,7 @@ public partial class DiskUserControl : UserControl
         InitializeComponent();
         DataContext = new DiskViewModel();
     }
-
+    
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);

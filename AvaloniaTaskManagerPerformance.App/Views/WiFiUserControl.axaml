@@ -37,25 +37,25 @@
         <Grid Grid.Row="3" ColumnDefinitions="Auto, Auto, *" Margin="0 0 0 30">
             <Grid Grid.Column="0" RowDefinitions="Auto, Auto, Auto, Auto, *" ColumnDefinitions="Auto, Auto">
                 <Line Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Margin="10 0 0 0" Stroke="DarkRed" StrokeDashArray="2,4" Width="3"  StartPoint="10,10" EndPoint="10, 50"/>
-                <TextBlock Grid.Column="1" Grid.Row="0" Margin="18 10 18 0" FontSize="10" Text="{Binding SendLabel}"/>
-                <TextBlock Grid.Column="1" Grid.Row="1" Margin="18 10 18 0" FontWeight="Medium" Text="{Binding Send}"/>
+                <TextBlock Grid.Column="1" Grid.Row="0" Margin="18 10 18 0" FontSize="12" Text="{Binding SendLabel}"/>
+                <TextBlock Grid.Column="1" Grid.Row="1" Margin="18 5 18 0" FontWeight="Medium" Text="{Binding Send}"/>
                 <Line Grid.Row="2" Grid.RowSpan="2" Grid.Column="0" Margin="10 0 0 0" Stroke="DarkRed" Width="3"  StartPoint="10,10" EndPoint="10, 50"/>
-                <TextBlock Grid.Column="1" Grid.Row="2" Margin="18 10 18 0" FontSize="10" Text="{Binding ReceiveLabel}"/>
-                <TextBlock Grid.Column="1" Grid.Row="3" Margin="18 10 18 0" FontWeight="Medium" Text="{Binding Receive}"/>
+                <TextBlock Grid.Column="1" Grid.Row="2" Margin="18 10 18 0" FontSize="12" Text="{Binding ReceiveLabel}"/>
+                <TextBlock Grid.Column="1" Grid.Row="3" Margin="18 5 18 0" FontWeight="Medium" Text="{Binding Receive}"/>
             </Grid>
             <Grid Grid.Column="1" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, *" ColumnDefinitions="Auto, Auto">
-                <TextBlock Grid.Row="0" Grid.Column="0" Margin="0 5 0 0" FontSize="10" Text="{Binding AdapterNameLabel}"/>
-                <TextBlock Grid.Row="0" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding WiFiTypeLabel}"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0 5 0 0" FontSize="10" Text="{Binding SsidLabel}"/>
-                <TextBlock Grid.Row="1" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding Ssid}"/>
-                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0 5 0 0" FontSize="10" Text="{Binding DnsNameLabel}"/>
-                <TextBlock Grid.Row="2" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding WiFiDnsName}"/>
-                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0 5 0 0" FontSize="10" Text="{Binding ConnectionTypeLabel}"/>
-                <TextBlock Grid.Row="3" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding ConnectionType}"/>
-                <TextBlock Grid.Row="4" Grid.Column="0" Margin="0 5 0 0" FontSize="10" Text="{Binding Ipv4AddressLabel}"/>
-                <TextBlock Grid.Row="4" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding Ipv4}"/>
-                <TextBlock Grid.Row="5" Grid.Column="0" Margin="0 5 0 0" FontSize="10" Text="{Binding Ipv6AddressLabel}"/>
-                <TextBlock Grid.Row="5" Grid.Column="1" FontSize="10" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding Ipv6}"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Margin="0 5 0 0" FontSize="12" Text="{Binding AdapterNameLabel}"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" FontSize="12" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding WiFiTypeLabel}"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0 5 0 0" FontSize="12" Text="{Binding SsidLabel}"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" FontSize="12" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding Ssid}"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0 5 0 0" FontSize="12" Text="{Binding DnsNameLabel}"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" FontSize="12" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding WiFiDnsName}"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0 5 0 0" FontSize="12" Text="{Binding ConnectionTypeLabel}"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" FontSize="12" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding ConnectionType}"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" Margin="0 5 0 0" FontSize="12" Text="{Binding Ipv4AddressLabel}"/>
+                <TextBlock Grid.Row="4" Grid.Column="1" FontSize="12" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding Ipv4}"/>
+                <TextBlock Grid.Row="5" Grid.Column="0" Margin="0 5 0 0" FontSize="12" Text="{Binding Ipv6AddressLabel}"/>
+                <TextBlock Grid.Row="5" Grid.Column="1" FontSize="12" FontWeight="Medium" Margin="5 5 0 0" Text="{Binding Ipv6}"/>
             </Grid>
         </Grid>
     </Grid>

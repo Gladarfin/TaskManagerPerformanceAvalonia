@@ -12,7 +12,7 @@ public partial class MemoryUserControl : UserControl
         InitializeComponent();
         DataContext = new MemoryViewModel();
     }
-
+    
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);

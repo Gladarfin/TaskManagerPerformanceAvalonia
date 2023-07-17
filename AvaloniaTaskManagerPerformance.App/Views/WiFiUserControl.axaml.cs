@@ -13,7 +13,7 @@ public partial class WiFiUserControl : UserControl
         InitializeComponent();
         DataContext = new WiFiViewModel();
     }
-
+    
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
